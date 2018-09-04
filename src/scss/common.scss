@@ -1,0 +1,48 @@
+$media-desktop: 'screen and (min-width: 1000px)';
+
+body {
+    font-family: RobotoLight;
+}
+text {
+    font-size: 12px;    
+}
+
+.header {
+    border-bottom: 1px solid #eeeeee;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+
+    @media #{$media-desktop} {
+        flex-direction: row;
+    }
+
+    &__item {
+        &:first-child {
+            padding-right: 50px;
+        }
+    }
+
+    &__title {
+        padding: 0;
+        margin: 0;
+        font-size: 50px;
+        white-space: nowrap;
+        font-family: RobotoBold;
+    }
+
+    &__subtitle {
+        padding: 0;
+        margin: 0;
+        font-size: 18px;
+        font-weight: normal;
+        white-space: nowrap;
+    }
+}
+
+.text {
+    font-size: 16px;
+    line-height: 26px;
+    font-family: RobotoLight;
+}
