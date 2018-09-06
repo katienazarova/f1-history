@@ -1,7 +1,7 @@
-export function transformDataForSankey(data) {
+export function transformDataForSankey(data, filter) {
     const nodes = {};
     const links = {};
-    const constructors = [];
+    const constructors = new Set();
     const years = new Map();
 
     data.forEach(item => {
@@ -12,7 +12,7 @@ export function transformDataForSankey(data) {
         grandPrix.add(item.grand_prix.ru);
         years.set(item.year, grandPrix);
 
-        if (+item.year != 2017 && item.grand_prix.en != 'Azerbaijan Grand Prix') {
+        if (item.year != filter.year || item.grand_prix.ru != filter.grandPrix) {
             return;
         }
 
@@ -24,61 +24,51 @@ export function transformDataForSankey(data) {
                 name: item.pilot.en,
                 title: item.pilot.ru,
                 pilot: item.pilot, 
-                pilot_country: item.pilot_country, 
-                years: new Set([item.year]), 
-                links: 1 
+                pilot_country: item.pilot_country,
+                constructor: item.constructor,
+                place: item.place,
+                years: new Set([item.year]),
+                type: 'pilot'
             }
-            constructors.push(item.constructor);
+            constructors.add(item.constructor);
         }
-
-        const itemData = {
-            pilot: item.pilot.en,
-            constructor: item.constructor,
-            place: item.place,
-            grand_prix: item.grand_prix.en
-        };
 
         // Constructor
-        nodes[item.constructor] = { name: item.constructor };
-
-        let index = `${nospace(item.pilot.en)}_${nospace(item.constructor)}`;
-
-        if (links[index]) {
-            links[index].value++;
-        } else {
-            links[index] = {
-                source: item.pilot.en,
-                target: item.constructor,
-                value: 1,
-                ...itemData                
-            };
-        }
+        nodes[item.constructor] = { name: item.constructor, type: 'constructor' };
+        addLink(links, item, item.pilot.en, item.constructor);
 
         // Place
-        nodes[item.place] = { name: item.place };
-
-        index = `${nospace(item.constructor)}_${nospace(item.place)}`;
-
-        if (links[index]) {
-            links[index].value++;
-        } else {
-            links[index] = {
-                source: item.constructor,
-                target: item.place,
-                value: 1,
-                ...itemData                
-            };
-        }
+        nodes[item.place] = { name: item.place, type: 'place' };
+        addLink(links, item, item.constructor, item.place);
     });
 
     return {
         nodes: Object.values(nodes),
         links: Object.values(links),
-        years,
-        constructors        
+        constructors: [...constructors],
+        years                
     };
 }
 
-function nospace(string) {
+function addLink(links, item, source, target) {
+    let index = `${removeSpaces(source)}_${removeSpaces(target)}`;
+
+    if (links[index]) {
+        links[index].value++;
+        links[index].pilots.add(item.pilot.en);
+    } else {
+        links[index] = {
+            source,
+            target,
+            value: 1,
+            pilots: new Set([item.pilot.en]),
+            constructor: item.constructor,
+            place: item.place,
+            grand_prix: item.grand_prix.en,
+            year: item.year                
+        };
+    }
+}
+function removeSpaces(string) {
     return string.replace(/\s/g, '');
 }

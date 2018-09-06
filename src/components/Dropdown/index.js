@@ -10,7 +10,8 @@ class Dropdown extends React.Component {
         list: PropTypes.array.isRequired,
         current: PropTypes.string.isRequired,
         title: PropTypes.string,        
-        columns: PropTypes.number,
+        columnsCount: PropTypes.number,
+        tabIndex: PropTypes.number,
         onChange: PropTypes.func        
     };
 
@@ -18,16 +19,15 @@ class Dropdown extends React.Component {
         title: '',
         list: [],
         current: '',
-        columns: 1,
+        columnsCount: 1,
+        tabIndex: 1,
         onChange: null
     };
 
     state = {
-        isActive: false
-    };
-
-    handleDocumentClick = (event) => {
-        this.setState({ isActive: false });
+        isActive: false,
+        isFocused: false,
+        focusedItemIndex: -1
     };
 
     componentDidMount() {
@@ -38,30 +38,110 @@ class Dropdown extends React.Component {
         window.document.removeEventListener('click', this.handleDocumentClick, false);
     }
 
-    onChange = value => {
+    handleDocumentClick = () => {
+        this.close();
+    };
+
+    onItemClick = value => {
         this.setState({ isActive: false });
         this.props.onChange && this.props.onChange(value);
     };
 
+    onFocus = () => {
+        this.setState({ isFocused: true });
+        this.props.onFocus && this.props.onFocus();
+    };
+
+    onBlur = value => {
+        this.setState({ isFocused: false });
+        this.props.onBlur && this.props.onBlur();
+    };
+
+    onKeyPressed = (event) => {
+        if (event.nativeEvent.key === 'ArrowDown') {
+            if (this.state.isActive) {
+                const items = this.refs.list.querySelectorAll('.dropdown__item');
+                let { focusedItemIndex } = this.state;
+
+                focusedItemIndex = focusedItemIndex < items.length - 1 
+                    ? focusedItemIndex + 1 
+                    : 0;
+                items[focusedItemIndex].focus();
+                this.setState({ focusedItemIndex });
+            } else {
+                this.setState({ isActive: true });
+            }
+        }
+
+        if (event.nativeEvent.key === 'ArrowUp') {
+            if (this.state.isActive) {
+                const items = this.refs.list.querySelectorAll('.dropdown__item');
+                let { focusedItemIndex } = this.state;
+
+                focusedItemIndex = focusedItemIndex > 0 
+                    ? focusedItemIndex - 1 
+                    : items.length - 1;
+                items[focusedItemIndex].focus();
+                this.setState({ focusedItemIndex });
+            }
+        }
+
+        if (event.nativeEvent.key === 'Escape') {
+            if (this.state.isActive) {
+                this.close();
+            }
+        }
+    };
+
+    onItemKeyPressed = (value, event) => {
+        if (event.nativeEvent.key === 'Enter') {
+            this.setState({ isActive: false });
+            this.props.onChange && this.props.onChange(value);
+        }        
+    };
+
     toggle = (event) => {
-        this.setState({ isActive: !this.state.isActive });
+        this.setState({ 
+            isActive: !this.state.isActive,
+            focusedItemIndex: -1
+        });
         event.nativeEvent.stopImmediatePropagation();
     };
 
-    render() {
-        var columns = [],
-            count = Math.ceil(this.props.list.length / this.props.columns);
+    close = () => {
+        this.setState({ 
+            isActive: false,
+            focusedItemIndex: -1 
+        });
+    };
 
-        for (let i = 0; i < this.props.columns; i++) {
-            columns.push(this.props.list.slice(count * i, count * i + count));
+    render() {
+        const {
+            title,
+            current,
+            list,
+            columnsCount,
+            className,
+            tabIndex            
+        } = this.props;
+
+        const columns = [],
+            count = Math.ceil(list.length / columnsCount);
+
+        for (let i = 0; i < columnsCount; i++) {
+            columns.push(list.slice(count * i, count * i + count));
         }
 
         return <div className={classNames({
-                            dropdown: true,
-                            [this.props.className]: this.props.className
-                        })}>
+                        dropdown: true,
+                        [className]: className
+                    })}
+                    tabIndex={tabIndex}
+                    onFocus={this.onFocus}
+                    onBlur={this.onBlur}
+                    onKeyDown={this.onKeyPressed}>
 
-                <span className='dropdown__title'>{this.props.title}</span>
+                <span className='dropdown__title'>{title}: </span>
 
                 <span className={classNames({
                             dropdown__label: true,
@@ -69,19 +149,22 @@ class Dropdown extends React.Component {
                         })}
                       onClick={this.toggle}>
 
-                    <span>{this.props.current}</span>
+                    <span>{current}</span>
                 </span>
 
                 <div className='dropdown__list'
+                     ref='list'
                      style={{ display: this.state.isActive ? 'flex' : 'none' }}>
 
                     {columns.map((items, i) => <div className='dropdown__list-in' key={i}>
                         {items.map(item => <div className={classNames({
                                                     dropdown__item: true,
-                                                    dropdown__item_state_current: item === this.props.current
+                                                    dropdown__item_state_current: item === current
                                                 })}
                                                 key={item}
-                                                onClick={this.onChange.bind(this, item)}>
+                                                tabIndex={tabIndex}
+                                                onKeyDown={this.onItemKeyPressed.bind(this, item)}
+                                                onClick={this.onItemClick.bind(this, item)}>
                             <span>{item}</span>
                         </div>)}
                     </div>)}

@@ -12,18 +12,18 @@ import '../../../build/fonts.css';
 class Layout extends React.Component {
     componentWillMount() {
         d3.json('data/race_results.json')
-            .then(data => {
-                data = transformDataForSankey(data);
-                this.setState({ isLoading: false, data });
+            .then(rawData => {
+                const data = transformDataForSankey(rawData, this.state.filter);
 
-                const sankey = new Sankey(data, d3.select('svg#sankey'));
-
-                sankey.render();
+                this.setState({ isLoading: false, rawData, data });
+                this.sankey = new Sankey(data, d3.select('svg#sankey'));
+                this.sankey.render();
             });
     }
 
     state = {
         isLoading: true,
+        rawData: {},
         data: {},
         filter: {
             year: '1950',
@@ -36,8 +36,18 @@ class Layout extends React.Component {
             changes.grandPrix = [...this.state.data.years.get(changes.year)][0];
         }
 
-        this.setState({ filter: {...this.state.filter, ...changes} });
+        this.setState({ filter: {...this.state.filter, ...changes} }, () => {
+            this.updateData();
+        });      
     };
+
+    updateData() {
+        const data = transformDataForSankey(this.state.rawData, this.state.filter);
+
+        this.setState({ data });
+        this.sankey.update(data);
+        this.sankey.render();
+    }
 
     render() {
         const { data, filter } = this.state;
@@ -45,8 +55,8 @@ class Layout extends React.Component {
 
         if (data.years) {
             filterFields = {
-                year: { title: 'Сезон', data: [...data.years.keys()], columns: 7 },
-                grandPrix: { title: 'Гран-при', data: [...data.years.get(filter.year)], columns: 3 }
+                year: { title: 'Сезон', data: [...data.years.keys()], columnsCount: 7 },
+                grandPrix: { title: 'Гран-при', data: [...data.years.get(filter.year)], columnsCount: 3 }
             };
         }
 
@@ -79,7 +89,7 @@ class Layout extends React.Component {
                                 fields={filterFields}
                                 onChange={this.onFilterChange} />
                     </div>
-                    <svg id="sankey" width="100%" height="700"></svg>
+                    <svg id="sankey" width="100%" height="600"></svg>
                 </div>
             : null }
         </div>;

@@ -36,12 +36,13 @@ class Filter extends React.Component {
                 [className]: className
             })}>
 
-            { Object.keys(fields).map(item => <div className='filter__item' key={item}>
+            { Object.keys(fields).map((item, index) => <div className='filter__item' key={item}>
                 <Dropdown
                     title={fields[item].title}
                     list={fields[item].data}
                     current={filter[item]}
-                    columns={fields[item].columns}
+                    columnsCount={fields[item].columnsCount}
+                    tabIndex={index}
                     onChange={this.onChange.bind(this, item)} 
                 />
             </div>)}

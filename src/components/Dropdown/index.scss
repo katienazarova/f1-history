@@ -4,6 +4,14 @@
     box-sizing: border-box;
     display: inline-block;
     position: relative;
+    padding: 5px 10px;
+    border: 1px solid #eeeeee;
+    border-radius: 4px;
+    white-space: nowrap;
+
+    &:focus {
+        border: 1px solid #ffea00;
+    }
 
     &__title {
         display: inline-block;
@@ -61,13 +69,14 @@
         overflow: hidden;
         text-overflow: ellipsis;
         border-radius: 4px;
-
-        &:last-child {
-            border-bottom: none;
-        }
+        border: 1px solid transparent;
 
         &:hover {
             background-color: #f5f5f5;
+        }
+
+        &:focus {
+            border: 1px solid #ffea00;
         }
 
         &_state_current,

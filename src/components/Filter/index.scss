@@ -2,7 +2,7 @@
 
 .filter {
     display: flex;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     flex-direction: column;
 
     @media #{$media-desktop} {
@@ -11,10 +11,7 @@
 
     &__item {
         justify-content: flex-start;
-        margin-right: 20px;
-        padding: 5px 10px;
-        border: 1px solid #eeeeee;
-        border-radius: 4px;
+        margin-right: 20px;        
         margin-bottom: 10px;
     }
 }
