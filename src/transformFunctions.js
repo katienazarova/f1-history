@@ -1,8 +1,9 @@
-export function transformDataForSankey(data, filter) {
+export function transformData(data, championsData, filter) {
     const nodes = {};
     const links = {};
     const constructors = new Set();
     const years = new Map();
+    const pilots = {};
 
     data.forEach(item => {
         const grandPrix = years.has(item.year) 
@@ -11,6 +12,22 @@ export function transformDataForSankey(data, filter) {
 
         grandPrix.add(item.grand_prix.ru);
         years.set(item.year, grandPrix);
+
+        if (pilots[item.pilot.en]) {
+            pilots[item.pilot.en].racesCount++;
+            pilots[item.pilot.en].years.add(item.year);
+
+            if (item.pilot.en === championsData[item.year]) {
+                pilots[item.pilot.en].isChampion.add(item.year);
+            }
+        } else {
+            pilots[item.pilot.en] = {
+                name: item.pilot.en,
+                racesCount: 1,
+                years: new Set([item.year]),
+                isChampion: (item.pilot.en === championsData[item.year]) ? new Set([item.year]) : new Set()
+            };
+        }
 
         if (item.year != filter.year || item.grand_prix.ru != filter.grandPrix) {
             return;
@@ -45,8 +62,9 @@ export function transformDataForSankey(data, filter) {
     return {
         nodes: Object.values(nodes),
         links: Object.values(links),
+        pilots: Object.values(pilots),
         constructors: [...constructors],
-        years                
+        years        
     };
 }
 

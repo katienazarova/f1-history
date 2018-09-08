@@ -1,5 +1,7 @@
 import * as d3 from 'd3';
 import { sankey, sankeyLinkHorizontal } from "d3-sankey";
+import debounce from 'lodash.debounce';
+
 import colors from './colors';
 import { parallelogram } from './customShapes';
 
@@ -7,9 +9,6 @@ class Sankey {
     constructor(data, svg) {
         this.data = data;
         this.svg = svg;
-
-        this.width = svg.node().clientWidth;
-        this.height = svg.node().clientHeight;
 
         this.params = {
             nodeWidth: 5,
@@ -23,6 +22,20 @@ class Sankey {
             transitionDuration: 300
         };
 
+        this.layout();
+
+        d3.select(window).on('resize.updatesvg', debounce(() => {
+            this.svg.selectAll('*').remove();
+
+            this.layout();
+            this.render();
+        }));
+    }
+
+    layout() {
+        this.width = this.svg.node().clientWidth;
+        this.height = this.svg.node().clientHeight;
+
         this.sankeyFunc = sankey()
             .nodeId(d => d.name)
             .nodeWidth(this.params.nodeWidth)
@@ -31,8 +44,8 @@ class Sankey {
                 [this.params.padding.left, this.params.padding.top],
                 [this.width - this.params.padding.right, this.height - this.params.padding.bottom]
             ])
-            .nodes(data.nodes)
-            .links(data.links);
+            .nodes(this.data.nodes)
+            .links(this.data.links);
         this.sankey = this.sankeyFunc();
     }
 

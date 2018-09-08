@@ -5,19 +5,27 @@ import classNames from 'classnames';
 import Filter from '../Filter';
 
 import Sankey from '../../Sankey.js';
-import { transformDataForSankey } from '../../transformFunctions.js';
+import BubbleChart from '../../BubbleChart.js';
+import { transformData } from '../../transformFunctions.js';
 
 import '../../../build/fonts.css';
 
 class Layout extends React.Component {
     componentWillMount() {
-        d3.json('data/race_results.json')
-            .then(rawData => {
-                const data = transformDataForSankey(rawData, this.state.filter);
+        Promise.all([
+            d3.json('data/race_results.json'),
+            d3.json('data/champions.json')
+        ])
+            .then(([rawData, championsData]) => {
+                const data = transformData(rawData, championsData, this.state.filter);
 
                 this.setState({ isLoading: false, rawData, data });
+
                 this.sankey = new Sankey(data, d3.select('svg#sankey'));
                 this.sankey.render();
+
+                this.bubbleChart = new BubbleChart(data.pilots, d3.select('svg#bubbles'));
+                this.bubbleChart.render();
             });
     }
 
@@ -42,7 +50,7 @@ class Layout extends React.Component {
     };
 
     updateData() {
-        const data = transformDataForSankey(this.state.rawData, this.state.filter);
+        const data = transformData(this.state.rawData, this.state.filter);
 
         this.setState({ data });
         this.sankey.update(data);
@@ -82,14 +90,26 @@ class Layout extends React.Component {
                 </div>                
             </div>
 
+            <div className='layout__item'>
+                <div className='layout__description'>
+                    <h2>Пилоты</h2>
+                    <div className='text'>
+                        <p>«Формула-1» — чемпионат мира по кольцевым автогонкам на автомобилях 
+                        с открытыми колёсами. Чемпионат мира «Формулы-1» проводится каждый год 
+                        и состоит из отдельных этапов. В конце года выявляется победитель чемпионата.</p>
+                    </div>
+                </div>
+                <svg id='bubbles' width='100%' height='600'></svg>
+            </div>
+
             { !this.state.isLoading ?
                 <div>
                     <div className='races_results'>
                         <Filter filter={filter}
                                 fields={filterFields}
                                 onChange={this.onFilterChange} />
-                    </div>
-                    <svg id="sankey" width="100%" height="600"></svg>
+                    </div>                   
+                    <svg id='sankey' width='100%' height='600'></svg>
                 </div>
             : null }
         </div>;

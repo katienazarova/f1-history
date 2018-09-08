@@ -46,6 +46,7 @@ text {
         font-size: 50px;
         white-space: nowrap;
         font-family: RobotoBold;
+        font-weight: normal;
     }
 
     &__subtitle {
@@ -61,4 +62,32 @@ text {
     font-size: 16px;
     line-height: 26px;
     font-family: RobotoLight;
+}
+
+.layout__description {
+    width: 100%;
+
+    @media #{$media-desktop} {
+        width: 30%;
+        position: absolute;
+    }
+}
+
+h2 {
+    padding: 0;
+    margin: 0;
+    font-size: 30px;
+    white-space: nowrap;
+    font-family: RobotoBold;
+    font-weight: normal;
+}
+
+.axis path {
+    stroke: #cccccc;
+}
+
+.year-tick {
+    font-family: RobotoBold;
+    font-size: 16px;
+    fill: #999999;
 }
