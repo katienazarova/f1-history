@@ -23,6 +23,9 @@ export function transformData(data, championsData, filter) {
         } else {
             pilots[item.pilot.en] = {
                 name: item.pilot.en,
+                name_ru: item.pilot.ru,
+                country: item.pilot_country,
+                url: item.pilot_url,
                 racesCount: 1,
                 years: new Set([item.year]),
                 isChampion: (item.pilot.en === championsData[item.year]) ? new Set([item.year]) : new Set()

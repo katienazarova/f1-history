@@ -6,7 +6,19 @@ import { parallelogram } from './customShapes';
 
 class BubbleChart {
     constructor(data, svg) {
-        this.data = data;
+        const ticksData = ['1950', '1970', '1990', '2010'].map(year => ({
+            name: year,
+            racesCount: 250, 
+            type: 'year', 
+            isChampion: new Set(), 
+            years: new Set([year]) 
+        }));
+
+        this.data = [
+            ...ticksData,
+            ...data
+        ];
+
         this.svg = svg;
 
         this.params = {
@@ -16,117 +28,123 @@ class BubbleChart {
                 top: 40,
                 right: 40,
                 bottom: 40,
-                left: 40
+                left: 0
             },
             transitionDuration: 300
         };
 
         this.layout();
 
-        /*d3.select(window).on('resize.updatesvg', debounce(() => {
+        d3.select(window).on('resize.updatesvg', debounce(() => {
             this.svg.selectAll('*').remove();
-            this.width = svg.node().clientWidth;
-            this.height = svg.node().clientHeight;
 
             this.layout();
             this.render();
-        }));*/
+        }));
     }
 
     layout() {
-        this.width = this.svg.node().clientWidth;
-        this.height = this.svg.node().clientHeight;
-    }
+        this.outerWidth = this.svg.node().clientWidth;
+        this.outerHeight = this.svg.node().clientHeight;
 
-    render() {
-        const ticksData = ['1950', '1970', '1990', '2010'].map(year => ({
-            name: year,
-            racesCount: 250, 
-            type: 'year', 
-            isChampion: new Set(), 
-            years: new Set([year]) 
-        }));
+        this.width = (this.outerWidth - this.params.padding.left - this.params.padding.right) * 0.7;
+        this.height = this.outerHeight - this.params.padding.top - this.params.padding.bottom;
 
-        const data = [
-            ...ticksData,
-            ...this.data
-        ];
+        this.length = Math.sqrt(this.width * this.width + this.height * this.height);
+        this.angle = (Math.asin(this.height / this.length) * 180) / Math.PI;
 
-        const width = (this.width - this.params.padding.left - this.params.padding.right) * 0.7;
-        const height = this.height - this.params.padding.top - this.params.padding.bottom;
-
-        const length = Math.sqrt(width * width + height * height);
-        const angle = (Math.asin(height / length) * 180) / Math.PI;
-
-        const g = this.svg
-            .append('g');
-
-        const x = d3.scaleLinear()
-            .domain([1940, 2030])
-            .range([0, length]);
-
-        const r = d3.scaleLinear()
-            .domain(d3.extent(data, d => d.racesCount))
-            .rangeRound([7, 35]);
-
-        const color = d3.scaleLinear()
-            .domain(d3.extent(data, d => d.isChampion && d.isChampion.size || 0))
+        this.colorScale = d3.scaleLinear()
+            .domain(d3.extent(this.data, d => d.isChampion && d.isChampion.size || 0))
             .interpolate(d3.interpolateHcl)
             .range([d3.rgb("#ec675f"), d3.rgb('#c21729')]);
 
-        const simulation = d3.forceSimulation(data)
-            .force('x', d3.forceX(d1 => x([...d1.years][0])).strength(1))
-            .force('y', d3.forceY(height / 2))
-            .force('collide', d3.forceCollide(d => r(d.racesCount) - 2))
-            .stop();
+        this.radiusScale = d3.scaleLinear()
+            .domain(d3.extent(this.data, d => d.racesCount))
+            .rangeRound([7, 35]);
 
-        const ticks = data
-            .filter(d => d.type === 'year')
-            .map(d => Object.assign(d, {
-                fx: x([...d.years][0]),
-                fy: height / 2,
-            }));
+        this.xScale = d3.scaleLinear()
+            .domain([1940, 2030])
+            .range([0, this.length]);
+    }
 
-        for (var i = 0; i < 500; ++i) {
-            simulation.tick();
-        }
+    render() {
+        this.chartContainer = this.svg
+            .append('g')
+            .attr('transform-origin', `${this.outerWidth - this.width}px ${this.height / 2}px`)
+            .attr('transform', `translate(${this.outerWidth - this.length},${this.params.padding.top}) rotate(-${Math.round(this.angle)})`);
 
-        g.append('g')
-            .attr('class', 'axis axis_type_x')
-            .attr('transform', `translate(0,${height / 2})`)
-            .call(d3.axisBottom(x).ticks(0).tickSize(0));
+        this.renderAxis();
+        this.renderCircles();
+        this.renderTicks();
+        this.renderLegend();
+    }
 
-        const cell = g.append('g')
-            .attr('class', 'cells')
-            .selectAll('g')
-            .data(
-                d3.voronoi()
-                .extent([
-                    [-this.params.padding.left, -this.params.padding.top],
-                    [this.width + this.params.padding.right, this.height + this.params.padding.top]
-                ])
-                .x(d => d.x)
-                .y(d => d.y)
-                .polygons(data)
-            )
-            .enter()
-            .append('g');
-
-        cell.append('circle')
-            .attr('r', d => {
-                return r(d.data.racesCount) - 2;
+    renderCircles() {
+        const simulation = d3.forceSimulation(this.data)
+            .force('x', d3.forceX(d => this.xScale([...d.years][0])).strength(1))
+            .force('y', d3.forceY(this.height / 2))
+            .force('collide', d3.forceCollide(d => this.radiusScale(d.racesCount) - 2)/*.strength(0)*/)
+            .on('tick', d => {
+                for (let i = 0; i < 40; i++) {
+                    simulation.tick();
+                }
             })
-            .attr('fill', d => this.getColor(d, color))
+            .on('end', d => {
+                circles
+                    .transition()
+                    .duration(500)
+                    .attr('r', d => this.radiusScale(d.racesCount) - 2)
+                    .attr('cx', d => d.x)
+                    .attr('cy', d => d.y);
+            });
+
+        this.data.forEach(item => {
+            const randomAngle = Math.random() * 2 * Math.PI;
+
+            item.x = this.width / 2 + (this.width) * Math.cos(randomAngle);
+            item.y = this.height / 2 + (this.width) * Math.sin(randomAngle);
+        });
+
+        const circles = this.chartContainer
+            .selectAll('circle.bubble__pilot')
+            .data(this.data)
+            .enter()
+            .append('circle')
+            .attr('class', 'bubble__pilot')
+            .attr('fill', d => this.getColor(d))
             .attr('stroke', '#ffffff')
             .attr('stroke-width', 2)
-            .attr('cx', d => d.data.x)
-            .attr('cy', d => d.data.y);
+            .attr('r', 1)
+            .attr('cx', d => d.x)
+            .attr('cy', d => d.y)
+            .on('mouseover', this.onCircleMouseOver)
+            .on('mouseout', this.onCircleMouseOut);
 
-        cell.append('title')
-            .text(function(d) { return d.data.name + " - " + (d.data.racesCount); });
+        circles.append('title')
+            .text(d => d.name + " - " + (d.racesCount));
 
-            console.log(ticks);
-        g.selectAll('text.year-tick')
+        d3.select('body')
+            .append('div')	
+            .attr('class', 'bubble__tooltip')				
+            .style('opacity', 0);
+    }
+
+    renderAxis = () => {
+        this.chartContainer.append('g')
+            .attr('class', 'axis axis_type_x')
+            .attr('transform', `translate(0,${this.height / 2})`)
+            .call(d3.axisBottom(this.xScale).ticks(0).tickSize(0));
+    };
+
+    renderTicks = () => {
+        const ticks = this.data
+            .filter(d => d.type === 'year')
+            .map(d => Object.assign(d, {
+                fx: this.xScale([...d.years][0]),
+                fy: this.height / 2,
+            }));
+
+        this.chartContainer.selectAll('text.year-tick')
             .data(ticks)
             .enter()
             .append('text')
@@ -135,28 +153,133 @@ class BubbleChart {
             .attr('x', d => d.fx)
             .attr('y', d => d.fy)
             .attr('transform-origin', d => `${d.fx}px ${d.fy}px`)
-            .attr('transform', `rotate(${Math.round(angle)}) translate(0,5)`)
+            .attr('transform', `rotate(${Math.round(this.angle)}) translate(0,5)`)
             .text(d => d.name);
+    };
 
-        g.attr('transform-origin', `${this.width - width}px ${height / 2}px`)
-            .attr('transform', `translate(${this.width - length},${this.params.padding.top}) rotate(-${Math.round(angle)})`);
+    renderLegend = () => {
+        const legend = this.svg
+            .append('g')
+            .attr('class', 'legend');
+
+        const radiusData = [300, 250, 200, 150, 100, 50, 1];
+
+        let prev = 0;
+        legend
+            .selectAll('circle')
+            .data(radiusData)
+            .enter()
+            .append('circle')
+            .attr('cx', (d, i) => {
+                const cx = this.params.padding.left + (this.radiusScale(d) - 2) + prev;
+
+                prev += 2 * (this.radiusScale(d) - 2) + 5;
+
+                return cx;
+            })
+            .attr('cy', d => this.height - this.radiusScale(d) - 2)
+            .attr('r', d => this.radiusScale(d) - 2)
+            .attr('fill', '#51a7ca');
+
+        prev = 0;
+        legend
+            .selectAll('text.bubble__radius-label')
+            .data(radiusData)
+            .enter()
+            .append('text')
+            .attr('class', 'bubble__radius-label')
+            .attr('text-anchor', 'middle')
+            .attr('x', (d, i) => {
+                const cx = this.params.padding.left + (this.radiusScale(d) - 2) + prev;
+
+                prev += 2 * (this.radiusScale(d) - 2) + 5;
+
+                return cx;
+            })
+            .attr('y', this.height + 10)
+            .text(d => d);
+
+        legend
+            .append('text')
+            .attr('x', this.params.padding.left)
+            .attr('y', this.height - 2 * this.radiusScale(300) - 10)
+            .text('Радиус круга зависит от количества гонок');
+
+        const colorData = [0, 1, 2, 3, 4, 5, 6, 7];
+
+        legend
+            .selectAll('rect')
+            .data(colorData)
+            .enter()
+            .append('rect')
+            .attr('x', (d, i) => this.params.padding.left + 35 * i)
+            .attr('y', this.height - 2 * this.radiusScale(300) - 100)
+            .attr('width', 30)
+            .attr('height', 10)
+            .attr('fill', d => d ? this.colorScale(d) : '#51a7ca');
+
+        legend
+            .selectAll('text.bubble__color-label')
+            .data(colorData)
+            .enter()
+            .append('text')
+            .attr('class', 'bubble__color-label')
+            .attr('text-anchor', 'middle')
+            .attr('x', (d, i) => this.params.padding.left + 15 + 35 * i)
+            .attr('y', this.height - 2 * this.radiusScale(300) - 75)
+            .text(d => d);
+
+        legend
+            .append('text')
+            .attr('x', this.params.padding.left)
+            .attr('y', this.height - 2 * this.radiusScale(300) - 120)
+            .text('Цвет круга зависит от количества чемпионских титулов');
+    };
+
+    onCircleMouseOver = d => {
+        if (d.type === 'year') {
+            return;
+        }
+
+        const {pageX, pageY} = d3.event;
+
+        d3.selectAll('.bubble__pilot')
+            .filter(item => item.name === d.name)
+            .transition()
+            .duration(100)
+            .attr('stroke', '#000000');
+console.log(d);
+        d3.select('.bubble__tooltip')
+            .html(`
+                <h3>${d.name_ru}</h3>
+                <p>Австралийский гонщик. Принял участие в ${d.racesCount} Гран-при Формулы-1 
+                в 1958 году.</p>
+                <p><a href="${d.url}" target="_blank">Подробнее</a></p>
+            `)	
+            .style('left', `${pageX}px`)		
+            .style('top', `${pageY - 20}px`)
+            .transition()		
+            .duration(100)		
+            .style('opacity', 1);
     }
 
-    getColor(d, color) {
-        if (d.data.type === 'year') {
+    onCircleMouseOut = () => {
+        d3.selectAll('.bubble__pilot')
+            .attr('stroke', '#ffffff');
+
+        d3.select('.bubble__tooltip')
+            .style('opacity', 0);
+    };
+
+    getColor = d => {
+        if (d.type === 'year') {
             return '#ffffff';
         }
 
-        return d.data.isChampion.size 
-            ? color(d.data.isChampion.size)
+        return d.isChampion.size 
+            ? this.colorScale(d.isChampion.size)
             : '#51a7ca';
     }
-}
-
-function type(d) {
-    if (!d.value) return;
-    d.value = +d.value;
-    return d;
 }
 
 export default BubbleChart;

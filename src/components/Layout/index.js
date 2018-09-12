@@ -19,7 +19,7 @@ class Layout extends React.Component {
             .then(([rawData, championsData]) => {
                 const data = transformData(rawData, championsData, this.state.filter);
 
-                this.setState({ isLoading: false, rawData, data });
+                this.setState({ isLoading: false, rawData, championsData, data });
 
                 this.sankey = new Sankey(data, d3.select('svg#sankey'));
                 this.sankey.render();
@@ -50,7 +50,7 @@ class Layout extends React.Component {
     };
 
     updateData() {
-        const data = transformData(this.state.rawData, this.state.filter);
+        const data = transformData(this.state.rawData, this.state.championsData, this.state.filter);
 
         this.setState({ data });
         this.sankey.update(data);
