@@ -27,7 +27,7 @@ class BubbleChart {
             padding: {
                 top: 40,
                 right: 40,
-                bottom: 40,
+                bottom: 60,
                 left: 0
             },
             transitionDuration: 300
@@ -51,7 +51,8 @@ class BubbleChart {
         this.height = this.outerHeight - this.params.padding.top - this.params.padding.bottom;
 
         this.length = Math.sqrt(this.width * this.width + this.height * this.height);
-        this.angle = (Math.asin(this.height / this.length) * 180) / Math.PI;
+        this.angleRad = Math.asin(this.height / this.length);
+        this.angle = (this.angleRad * 180) / Math.PI;
 
         this.colorScale = d3.scaleLinear()
             .domain(d3.extent(this.data, d => d.isChampion && d.isChampion.size || 0))
@@ -83,7 +84,7 @@ class BubbleChart {
         const simulation = d3.forceSimulation(this.data)
             .force('x', d3.forceX(d => this.xScale([...d.years][0])).strength(1))
             .force('y', d3.forceY(this.height / 2))
-            .force('collide', d3.forceCollide(d => this.radiusScale(d.racesCount) - 2)/*.strength(0)*/)
+            .force('collide', d3.forceCollide(d => this.radiusScale(d.racesCount) - 2))
             .on('tick', d => {
                 for (let i = 0; i < 40; i++) {
                     simulation.tick();
@@ -96,6 +97,8 @@ class BubbleChart {
                     .attr('r', d => this.radiusScale(d.racesCount) - 2)
                     .attr('cx', d => d.x)
                     .attr('cy', d => d.y);
+
+                this.renderLabels();
             });
 
         this.data.forEach(item => {
@@ -119,9 +122,6 @@ class BubbleChart {
             .attr('cy', d => d.y)
             .on('mouseover', this.onCircleMouseOver)
             .on('mouseout', this.onCircleMouseOut);
-
-        circles.append('title')
-            .text(d => d.name + " - " + (d.racesCount));
 
         d3.select('body')
             .append('div')	
@@ -236,6 +236,94 @@ class BubbleChart {
             .text('Цвет круга зависит от количества чемпионских титулов');
     };
 
+    renderLabels = () => {
+        const labels = [{ 
+            name: 'Nino Farina',
+            label: 'Нино Фарина — победитель первого \nофициального Гран-при \nи первый чемпион мира \nв истории Формулы-1.'
+        }];
+
+        labels.forEach(item => {
+            const pilot = this.data.find(pilot => pilot.name === item.name);
+
+            const labelsContainer = this.chartContainer
+                .append('g')
+                .attr('class', 'bubble__labels');
+
+            //console.log(pilot.y - this.height / 2);
+
+            if (pilot.y > this.height / 2) {
+                console.log(pilot.y, this.getMaxY(pilot.x, pilot.y));
+                let length = (pilot.y - this.height / 2 > 200) 
+                    ? 100 
+                    : 40;
+
+                const x2 = pilot.x;
+                const y2 = pilot.y + length;
+
+                const x3 = x2 + 100;
+                const y3 = y2;
+
+                labelsContainer.append('line')
+                    .attr('x1', pilot.x)
+                    .attr('y1', pilot.y)
+                    .attr('x2', pilot.x)
+                    .attr('y2', pilot.y + length)
+                    .attr('stroke', '#333333');
+
+                if (pilot.y - this.height / 2 < 200) {
+                    labelsContainer.append('line')
+                        .attr('x1', x2)
+                        .attr('y1', y2)
+                        .attr('x2', x3)
+                        .attr('y2', y3)
+                        .attr('stroke', '#333333');
+
+                    labelsContainer.append('line')
+                        .attr('x1', x3)
+                        .attr('y1', y3 - 25)
+                        .attr('x2', x3)
+                        .attr('y2', y3 + 25)
+                        .attr('stroke', '#333333');
+
+                    const text = labelsContainer.append('text')
+                        .attr('class', 'bubble__label')
+                        .attr('x', x3 + 5)
+                        .attr('y', y3 - 25);
+
+                    item.label.split('\n').forEach(item => {
+                        text.append('tspan')
+                        .attr('x', x3 + 10)
+                        .attr('dy', 12)
+                        .text(item);
+                    });
+                }
+            } else {
+                labelsContainer.append('line')
+                    .attr('x1', pilot.x)
+                    .attr('y1', pilot.y)
+                    .attr('x2', pilot.x)
+                    .attr('y2', pilot.y - 50)
+                    .attr('stroke', '#333333');
+            }
+
+            labelsContainer
+                .attr('transform-origin', `${pilot.x}px ${pilot.y}px`)
+                .attr('transform', `rotate(${Math.round(this.angle)})`);
+        });
+
+        
+    };
+
+    getMaxY = (x, y) => {
+        return this.data.reduce((result, pilot) => {
+            if (pilot.x > x && result < pilot.y) {
+                result = pilot.y;
+            }
+
+            return result;
+        }, y);
+    };
+
     onCircleMouseOver = d => {
         if (d.type === 'year') {
             return;
@@ -245,10 +333,8 @@ class BubbleChart {
 
         d3.selectAll('.bubble__pilot')
             .filter(item => item.name === d.name)
-            .transition()
-            .duration(100)
             .attr('stroke', '#000000');
-console.log(d);
+
         d3.select('.bubble__tooltip')
             .html(`
                 <h3>${d.name_ru}</h3>
@@ -257,18 +343,26 @@ console.log(d);
                 <p><a href="${d.url}" target="_blank">Подробнее</a></p>
             `)	
             .style('left', `${pageX}px`)		
-            .style('top', `${pageY - 20}px`)
+            .style('top', `${pageY}px`)
+            .attr('data-pilot', d.name)
             .transition()		
             .duration(100)		
             .style('opacity', 1);
     }
 
-    onCircleMouseOut = () => {
+    onCircleMouseOut = d => {
         d3.selectAll('.bubble__pilot')
             .attr('stroke', '#ffffff');
 
-        d3.select('.bubble__tooltip')
-            .style('opacity', 0);
+        setTimeout(() => {
+            const tooltip = d3.select(`.bubble__tooltip[data-pilot="${d.name}"]`);
+            const tooltipNode = tooltip.node();
+
+            if (tooltipNode && tooltipNode !== tooltipNode.parentElement.querySelector(':hover')) {
+                d3.select('.bubble__tooltip')
+                    .style('opacity', 0);
+            }            
+        }, 300);        
     };
 
     getColor = d => {
