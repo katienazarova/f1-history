@@ -14,17 +14,18 @@ class Layout extends React.Component {
     componentWillMount() {
         Promise.all([
             d3.json('data/race_results.json'),
-            d3.json('data/champions.json')
+            d3.json('data/champions.json'),
+            d3.json('data/labels.json')
         ])
-            .then(([rawData, championsData]) => {
+            .then(([rawData, championsData, labelsData]) => {
                 const data = transformData(rawData, championsData, this.state.filter);
 
-                this.setState({ isLoading: false, rawData, championsData, data });
+                this.setState({ isLoading: false, rawData, championsData, labelsData, data });
 
                 this.sankey = new Sankey(data, d3.select('svg#sankey'));
                 this.sankey.render();
 
-                this.bubbleChart = new BubbleChart(data.pilots, d3.select('svg#bubbles'));
+                this.bubbleChart = new BubbleChart(data.pilots, labelsData, d3.select('svg#bubbles'));
                 this.bubbleChart.render();
             });
     }

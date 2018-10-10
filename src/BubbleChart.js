@@ -3,9 +3,11 @@ import debounce from 'lodash.debounce';
 
 import colors from './colors';
 import { parallelogram } from './customShapes';
+import { transformCoordinates } from './utils';
+import LabelComponent from './LabelComponent';
 
 class BubbleChart {
-    constructor(data, svg) {
+    constructor(data, labels, svg) {
         const ticksData = ['1950', '1970', '1990', '2010'].map(year => ({
             name: year,
             racesCount: 250, 
@@ -18,7 +20,7 @@ class BubbleChart {
             ...ticksData,
             ...data
         ];
-
+        this.labels = labels;
         this.svg = svg;
 
         this.params = {
@@ -81,10 +83,13 @@ class BubbleChart {
     }
 
     renderCircles() {
+        const links = this.getLinks();
+
         const simulation = d3.forceSimulation(this.data)
             .force('x', d3.forceX(d => this.xScale([...d.years][0])).strength(1))
             .force('y', d3.forceY(this.height / 2))
-            .force('collide', d3.forceCollide(d => this.radiusScale(d.racesCount) - 2))
+            .force('link', d3.forceLink().links(links).distance(150))
+            .force('collide', d3.forceCollide(d => this.radiusScale(d.racesCount) - 2).strength(1))
             .on('tick', d => {
                 for (let i = 0; i < 40; i++) {
                     simulation.tick();
@@ -96,7 +101,8 @@ class BubbleChart {
                     .duration(500)
                     .attr('r', d => this.radiusScale(d.racesCount) - 2)
                     .attr('cx', d => d.x)
-                    .attr('cy', d => d.y);
+                    .attr('cy', d => d.y)
+                    .attr('data-point', d => `${d.x},${d.y}`);
 
                 this.renderLabels();
             });
@@ -114,6 +120,7 @@ class BubbleChart {
             .enter()
             .append('circle')
             .attr('class', 'bubble__pilot')
+            .attr('data-pilot', d => d.name)
             .attr('fill', d => this.getColor(d))
             .attr('stroke', '#ffffff')
             .attr('stroke-width', 2)
@@ -144,7 +151,8 @@ class BubbleChart {
                 fy: this.height / 2,
             }));
 
-        this.chartContainer.selectAll('text.year-tick')
+        this.chartContainer
+            .selectAll('text.year-tick')
             .data(ticks)
             .enter()
             .append('text')
@@ -152,9 +160,41 @@ class BubbleChart {
             .attr('text-anchor', 'middle')
             .attr('x', d => d.fx)
             .attr('y', d => d.fy)
-            .attr('transform-origin', d => `${d.fx}px ${d.fy}px`)
-            .attr('transform', `rotate(${Math.round(this.angle)}) translate(0,5)`)
+            .attr('transform', d => `rotate(${Math.round(this.angle)} ${d.fx} ${d.fy}) translate(0,5)`)
             .text(d => d.name);
+    };
+
+    getLinks = () => {
+        const linkedPairs = [
+            ['Nino Farina', 'Juan Fangio'],
+            ['Ayrton Senna', 'Michael Schumacher'],
+            ['Ayrton Senna', 'Alain Prost']
+        ];
+
+        const links = [];
+
+        linkedPairs.forEach(pair => {
+            let source, 
+                target;
+
+            for (let i = 0; i < this.data.length; i++) {
+                if (this.data[i].name === pair[0]) {
+                    source = i;
+                }
+
+                if (this.data[i].name === pair[1]) {
+                    target = i;
+                }
+
+                if (source !== undefined && target !== undefined) {
+                    break;
+                }
+            }
+
+            links.push({ source, target });
+        });
+
+        return links;
     };
 
     renderLegend = () => {
@@ -237,91 +277,25 @@ class BubbleChart {
     };
 
     renderLabels = () => {
-        const labels = [{ 
-            name: 'Nino Farina',
-            label: 'Нино Фарина — победитель первого \nофициального Гран-при \nи первый чемпион мира \nв истории Формулы-1.'
-        }];
+        const transformCoordsFunc = transformCoordinates(
+            -this.angleRad,
+            { x: this.outerWidth - this.width, y: this.height / 2 },
+            this.outerWidth - this.length,
+            this.params.padding.top
+        );
 
-        labels.forEach(item => {
-            const pilot = this.data.find(pilot => pilot.name === item.name);
+        const labelComponent = new LabelComponent(
+            this.data,
+            this.chartContainer,
+            this.width,
+            this.height,
+            this.angle,
+            transformCoordsFunc
+        );
 
-            const labelsContainer = this.chartContainer
-                .append('g')
-                .attr('class', 'bubble__labels');
-
-            //console.log(pilot.y - this.height / 2);
-
-            if (pilot.y > this.height / 2) {
-                console.log(pilot.y, this.getMaxY(pilot.x, pilot.y));
-                let length = (pilot.y - this.height / 2 > 200) 
-                    ? 100 
-                    : 40;
-
-                const x2 = pilot.x;
-                const y2 = pilot.y + length;
-
-                const x3 = x2 + 100;
-                const y3 = y2;
-
-                labelsContainer.append('line')
-                    .attr('x1', pilot.x)
-                    .attr('y1', pilot.y)
-                    .attr('x2', pilot.x)
-                    .attr('y2', pilot.y + length)
-                    .attr('stroke', '#333333');
-
-                if (pilot.y - this.height / 2 < 200) {
-                    labelsContainer.append('line')
-                        .attr('x1', x2)
-                        .attr('y1', y2)
-                        .attr('x2', x3)
-                        .attr('y2', y3)
-                        .attr('stroke', '#333333');
-
-                    labelsContainer.append('line')
-                        .attr('x1', x3)
-                        .attr('y1', y3 - 25)
-                        .attr('x2', x3)
-                        .attr('y2', y3 + 25)
-                        .attr('stroke', '#333333');
-
-                    const text = labelsContainer.append('text')
-                        .attr('class', 'bubble__label')
-                        .attr('x', x3 + 5)
-                        .attr('y', y3 - 25);
-
-                    item.label.split('\n').forEach(item => {
-                        text.append('tspan')
-                        .attr('x', x3 + 10)
-                        .attr('dy', 12)
-                        .text(item);
-                    });
-                }
-            } else {
-                labelsContainer.append('line')
-                    .attr('x1', pilot.x)
-                    .attr('y1', pilot.y)
-                    .attr('x2', pilot.x)
-                    .attr('y2', pilot.y - 50)
-                    .attr('stroke', '#333333');
-            }
-
-            labelsContainer
-                .attr('transform-origin', `${pilot.x}px ${pilot.y}px`)
-                .attr('transform', `rotate(${Math.round(this.angle)})`);
+        this.labels.forEach(item => {
+            labelComponent.render(item);
         });
-
-        
-    };
-
-    getMaxY = (x, y) => {
-        return this.data.reduce((result, pilot) => {
-            if (pilot.x > x && result < pilot.y) {
-                result = pilot.y;
-            }
-
-            return result;
-        }, y);
     };
 
     onCircleMouseOver = d => {
