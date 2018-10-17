@@ -7,70 +7,14 @@ text {
     font-size: 12px;    
 }
 
-rect.node,
-path.link,
-text.node-label {
-    cursor: pointer;
-}
-
 .no-pointer-events {
     pointer-events: none;
-}
-
-.label {
-    text-transform: uppercase;
-    font-family: RobotoBold;
-    font-size: 14px;
-}
-
-.header {
-    border-bottom: 1px solid #eeeeee;
-    padding-bottom: 20px;
-    margin-bottom: 20px;
-    display: flex;
-    flex-direction: column;
-
-    @media #{$media-desktop} {
-        flex-direction: row;
-    }
-
-    &__item {
-        &:first-child {
-            padding-right: 50px;
-        }
-    }
-
-    &__title {
-        padding: 0;
-        margin: 0;
-        font-size: 50px;
-        white-space: nowrap;
-        font-family: RobotoBold;
-        font-weight: normal;
-    }
-
-    &__subtitle {
-        padding: 0;
-        margin: 0;
-        font-size: 18px;
-        font-weight: normal;
-        white-space: nowrap;
-    }
 }
 
 .text {
     font-size: 16px;
     line-height: 26px;
     font-family: RobotoLight;
-}
-
-.layout__description {
-    width: 100%;
-
-    @media #{$media-desktop} {
-        width: 30%;
-        position: absolute;
-    }
 }
 
 h2 {
@@ -116,5 +60,10 @@ h3 {
     background: #ffffff;
     padding: 10px;
     border: 1px solid #dddddd;
-    border-left: 5px solid #ffea00;
+    border-left: 5px solid #51a7ca;
+}
+
+.bubble__label {
+    font-family: RobotoLightItalic;
+    font-size: 11px;
 }

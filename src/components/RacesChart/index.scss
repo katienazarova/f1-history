@@ -1,0 +1,25 @@
+@import "../../scss/common";
+
+.races-chart {
+
+    &__description {
+        width: 100%;
+
+        @media #{$media-desktop} {
+            width: 30%;
+            position: absolute;
+        }
+    }
+
+    &__label {
+        text-transform: uppercase;
+        font-family: RobotoLightItalic;
+        font-size: 14px;
+    }
+
+    &__node,
+    &__link,
+    &__node-label {
+        cursor: pointer;
+    }
+}

@@ -10,7 +10,7 @@
     white-space: nowrap;
 
     &:focus {
-        border: 1px solid #ffea00;
+        border: 1px solid #51a7ca;
     }
 
     &__title {
@@ -76,12 +76,12 @@
         }
 
         &:focus {
-            border: 1px solid #ffea00;
+            border: 1px solid #51a7ca;
         }
 
         &_state_current,
         &_state_current:hover {
-            background: #ffea00;
+            background: #51a7ca;
         }
     }
 }

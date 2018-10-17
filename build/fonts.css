@@ -17,3 +17,13 @@
     font-style: normal;
     font-weight: normal;
 }
+
+@font-face {
+    font-family: "RobotoLightItalic";
+    src: url("fonts/RobotoLightItalic/RobotoLightItalic.eot");
+    src: url("fonts/RobotoLightItalic/RobotoLightItalic.eot?#iefix") format("embedded-opentype"),
+    url("fonts/RobotoLightItalic/RobotoLightItalic.woff") format("woff"),
+    url("fonts/RobotoLightItalic/RobotoLightItalic.ttf") format("truetype");
+    font-style: normal;
+    font-weight: normal;
+}

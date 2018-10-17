@@ -1,13 +1,11 @@
 import * as d3 from 'd3';
 import debounce from 'lodash.debounce';
 
-import colors from './colors';
-import { parallelogram } from './customShapes';
-import { transformCoordinates } from './utils';
+import { transformCoordinates } from '../../utils/functions';
 import LabelComponent from './LabelComponent';
 
 class BubbleChart {
-    constructor(data, labels, svg) {
+    constructor(data, labels, container) {
         const ticksData = ['1950', '1970', '1990', '2010'].map(year => ({
             name: year,
             racesCount: 250, 
@@ -21,7 +19,7 @@ class BubbleChart {
             ...data
         ];
         this.labels = labels;
-        this.svg = svg;
+        this.svg = d3.select(container);
 
         this.params = {
             nodeWidth: 5,
@@ -57,16 +55,16 @@ class BubbleChart {
         this.angle = (this.angleRad * 180) / Math.PI;
 
         this.colorScale = d3.scaleLinear()
-            .domain(d3.extent(this.data, d => d.isChampion && d.isChampion.size || 0))
-            .interpolate(d3.interpolateHcl)
-            .range([d3.rgb("#ec675f"), d3.rgb('#c21729')]);
+            .domain(d3.range(...d3.extent(this.data, d => d.isChampion && d.isChampion.size || 0)))
+            .range(['#51a7ca', '#50b229', '#f6b42a', '#e77820', '#d74e24', '#c21729'])
+            .interpolate(d3.interpolateHcl);
 
         this.radiusScale = d3.scaleLinear()
             .domain(d3.extent(this.data, d => d.racesCount))
             .rangeRound([7, 35]);
 
         this.xScale = d3.scaleLinear()
-            .domain([1940, 2030])
+            .domain([1940, 2040])
             .range([0, this.length]);
     }
 
@@ -88,7 +86,7 @@ class BubbleChart {
         const simulation = d3.forceSimulation(this.data)
             .force('x', d3.forceX(d => this.xScale([...d.years][0])).strength(1))
             .force('y', d3.forceY(this.height / 2))
-            .force('link', d3.forceLink().links(links).distance(150))
+            .force('link', d3.forceLink().links(links).distance(200))
             .force('collide', d3.forceCollide(d => this.radiusScale(d.racesCount) - 2).strength(1))
             .on('tick', d => {
                 for (let i = 0; i < 40; i++) {
@@ -167,8 +165,7 @@ class BubbleChart {
     getLinks = () => {
         const linkedPairs = [
             ['Nino Farina', 'Juan Fangio'],
-            ['Ayrton Senna', 'Michael Schumacher'],
-            ['Ayrton Senna', 'Alain Prost']
+            ['Ayrton Senna', 'Michael Schumacher']
         ];
 
         const links = [];
@@ -294,7 +291,7 @@ class BubbleChart {
         );
 
         this.labels.forEach(item => {
-            labelComponent.render(item);
+            labelComponent.render(item, 'bubble__labels');
         });
     };
 
@@ -309,11 +306,14 @@ class BubbleChart {
             .filter(item => item.name === d.name)
             .attr('stroke', '#000000');
 
-        d3.select('.bubble__tooltip')
+        const tooltip = d3.select('.bubble__tooltip');
+
+        tooltip
             .html(`
                 <h3>${d.name_ru}</h3>
-                <p>Австралийский гонщик. Принял участие в ${d.racesCount} Гран-при Формулы-1 
-                в 1958 году.</p>
+                <p>Принял участие в ${d.racesCount} Гран-при Формулы-1 ${this.formatYears(d.years)}.</p>
+                ${ d.isChampion.size ? `<p>Завоевал чемпионский титул 
+                в ${[...d.isChampion].join(', ')} ${d.isChampion.size === 1 ? 'году' : 'годах'}.<p>` : '' }
                 <p><a href="${d.url}" target="_blank">Подробнее</a></p>
             `)	
             .style('left', `${pageX}px`)		
@@ -322,12 +322,56 @@ class BubbleChart {
             .transition()		
             .duration(100)		
             .style('opacity', 1);
+
+        tooltip.on('mouseout', () => {
+            this.hideTooltip(d);
+        });
     }
 
     onCircleMouseOut = d => {
         d3.selectAll('.bubble__pilot')
             .attr('stroke', '#ffffff');
 
+        this.hideTooltip(d);
+    };
+
+    formatYears = years => {
+        const ranges = [];
+
+        if (years.size === 1) {
+            return `в ${[...years][0]} году`;
+        }
+
+        let range,
+            prev;
+
+        for (let year of years) {
+            if (year - prev === 1) {
+                range.push(year);
+            } else {
+                if (range && range.length) { 
+                    ranges.push(range);
+                }
+                range = [year];
+            }
+
+            prev = year;
+        }
+
+        if (range && range.length) { 
+            ranges.push(range);
+        }
+
+        if (ranges.length === 1) {
+            return `с ${ranges[0][0]} по ${ranges[0][ranges[0].length - 1]} годы`;
+        }
+
+        return `в ${ranges.map(range => range.length === 1 
+            ? range[0] 
+            : `${range[0]}–${range[range.length - 1]}`).join(', ')} гг`;
+    };
+
+    hideTooltip = d => {
         setTimeout(() => {
             const tooltip = d3.select(`.bubble__tooltip[data-pilot="${d.name}"]`);
             const tooltipNode = tooltip.node();
@@ -336,17 +380,13 @@ class BubbleChart {
                 d3.select('.bubble__tooltip')
                     .style('opacity', 0);
             }            
-        }, 300);        
+        }, 300);
     };
 
     getColor = d => {
-        if (d.type === 'year') {
-            return '#ffffff';
-        }
-
-        return d.isChampion.size 
-            ? this.colorScale(d.isChampion.size)
-            : '#51a7ca';
+        return (d.type === 'year')
+            ? '#ffffff'
+            : this.colorScale(d.isChampion.size);
     }
 }
 

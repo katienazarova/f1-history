@@ -20,23 +20,23 @@ module.exports = {
             { test: /\.css$/, loader: 'style-loader!css-loader' },
             {
                 test: /\.svg$/,
-                loader: 'url-loader?limit=65000&mimetype=image/svg+xml&name=web/assets/fonts/[name].[ext]'
+                loader: 'url-loader?limit=65000&mimetype=image/svg+xml'
             },
             {
                 test: /\.woff$/,
-                loader: 'url-loader?limit=65000&mimetype=application/font-woff&name=web/assets/fonts/[name].[ext]'
+                loader: 'url-loader?mimetype=application/font-woff'
             },
             {
                 test: /\.woff2$/,
-                loader: 'url-loader?limit=65000&mimetype=application/font-woff2&name=web/assets/fonts/[name].[ext]'
+                loader: 'url-loader?mimetype=application/font-woff2'
             },
             {
                 test: /\.[ot]tf$/,
-                loader: 'url-loader?limit=65000&mimetype=application/octet-stream&name=web/assets/fonts/[name].[ext]'
+                loader: 'url-loader?mimetype=application/octet-stream'
             },
             {
                 test: /\.eot$/,
-                loader: 'url-loader?limit=65000&mimetype=application/vnd.ms-fontobject&name=web/assets/fonts/[name].[ext]'
+                loader: 'url-loader?mimetype=application/vnd.ms-fontobject'
             }
         ]
     },

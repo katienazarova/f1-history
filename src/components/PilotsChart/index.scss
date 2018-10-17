@@ -1,0 +1,14 @@
+@import "../../scss/common";
+
+.pilots-chart {
+    margin-bottom: 30px;
+
+    &__description {
+        width: 100%;
+
+        @media #{$media-desktop} {
+            width: 30%;
+            position: absolute;
+        }
+    }
+}

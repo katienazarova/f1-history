@@ -1,14 +1,15 @@
 import * as d3 from 'd3';
-import { sankey, sankeyLinkHorizontal } from "d3-sankey";
+import { sankey, sankeyLinkHorizontal } from 'd3-sankey';
 import debounce from 'lodash.debounce';
 
-import colors from './colors';
-import { parallelogram } from './customShapes';
+import colors from '../../utils/colors';
+import { parallelogram } from '../../utils/customShapes';
 
-class Sankey {
-    constructor(data, svg) {
+class SankeyChart {
+    constructor(data, container, classPrefix) {
         this.data = data;
-        this.svg = svg;
+        this.svg = d3.select(container);
+        this.classPrefix = classPrefix;
 
         this.params = {
             nodeWidth: 5,
@@ -64,7 +65,7 @@ class Sankey {
 
     renderNodes() {
         const nodes = this.svg
-            .selectAll('rect.node')
+            .selectAll(`rect.${this.classPrefix}__node`)
             .data(this.sankey.nodes, d => d.name);
 
         nodes
@@ -81,7 +82,7 @@ class Sankey {
         nodes
             .enter()
             .append('rect')
-            .attr('class', d => `node node_type_${d.type}`)
+            .attr('class', d => `${this.classPrefix}__node ${this.classPrefix}__node_type_${d.type}`)
             .attr('data-ref', d => d.name)
             .attr('x', d => d.x0)
             .attr('width', d => d.x1 - d.x0)
@@ -94,7 +95,7 @@ class Sankey {
         nodes.exit().remove();
 
         const nodeLabels = this.svg
-            .selectAll('text.node-label')
+            .selectAll(`text.${this.classPrefix}__node-label`)
             .data(this.sankey.nodes, d => d.name);
 
         nodeLabels
@@ -108,7 +109,7 @@ class Sankey {
         nodeLabels
             .enter()
             .append('text')
-            .attr('class', 'node-label')
+            .attr('class', `${this.classPrefix}__node-label`)
             .attr('dy', '0.35em')
             .attr('text-anchor', 'end')
             .attr('x', d => d.x0 - 6)
@@ -125,7 +126,7 @@ class Sankey {
 
     renderLinks() {
         const links = this.svg
-            .selectAll('path.link')
+            .selectAll(`path.${this.classPrefix}__link`)
             .data(this.sankey.links);
 
         const self = this;
@@ -145,7 +146,7 @@ class Sankey {
         links
             .enter()
             .append('path')
-            .attr('class', 'link')
+            .attr('class', `${this.classPrefix}__link`)
             .attr('d', this.getLinkShape)
             .attr('data-constructor', d => d.constructor)
             .attr('data-place', d => d.place)
@@ -171,11 +172,11 @@ class Sankey {
             this.svg
                 .append('path')
                 .attr('d', parallelogram(node.x0 - (width / 2), 0, width, 20, 5, 5))
-                .attr('fill', '#ffea00');
+                .attr('fill', '#51a7ca');
 
             this.svg
                 .append('text')
-                .attr('class', `label label_type_${dimension.name}`)
+                .attr('class', `${this.classPrefix}__label ${this.classPrefix}__label_type_${dimension.name}`)
                 .text(dimension.title)
                 .attr('text-anchor', 'middle')
                 .attr('x', node.x0)
@@ -201,7 +202,7 @@ class Sankey {
     }
 
     onLinkMouseOver = d => {
-        d3.selectAll('.link')
+        d3.selectAll(`.${this.classPrefix}__link`)
         .filter(item => {
             const intersection = new Set(
                 [...item.pilots].filter(x => d.pilots.has(x))
@@ -213,13 +214,13 @@ class Sankey {
         .duration(this.params.transitionDuration / 2)
         .style('stroke-opacity', 0.9);
 
-        d3.selectAll('.node-label')
+        d3.selectAll(`.${this.classPrefix}__node-label`)
             .filter(item => item.pilot && d.pilots.has(item.pilot.en))
             .style('font-family', 'RobotoBold');
     }
 
     onNodeMouseOver = d => {
-        d3.selectAll('.link')
+        d3.selectAll(`.${this.classPrefix}__link`)
             .filter(item => {
                 return d.type === 'pilot'
                     ? item.pilots.has(d.pilot.en)
@@ -229,25 +230,25 @@ class Sankey {
             .duration(10)
             .style('stroke-opacity', 0.9);
 
-        d3.selectAll('.node-label')
+        d3.selectAll(`.${this.classPrefix}__node-label`)
             .filter(item => item[d.type] === d.name || item.name === d.name)
             .style('font-family', 'RobotoBold');
     }
 
     onMouseOut = d => {
-        d3.selectAll('.link')
+        d3.selectAll(`.${this.classPrefix}__link`)
             .transition()
             .duration(10)
             .style('stroke-opacity', 0.5);
 
-        d3.selectAll('.node')
+        d3.selectAll(`.${this.classPrefix}__node`)
             .transition()
             .duration(10)
             .attr('fill', '#000000');
 
-        d3.selectAll('.node-label')
+        d3.selectAll(`.${this.classPrefix}__node-label`)
             .style('font-family', 'RobotoLight');
     };
 }
 
-export default Sankey;
+export default SankeyChart;

@@ -24,7 +24,7 @@ class Filter extends React.Component {
         this.props.onChange && this.props.onChange({ [key]: value });
     };
 
-    render() {
+    render() { console.log(this.props);
         const {
             filter,
             fields,
