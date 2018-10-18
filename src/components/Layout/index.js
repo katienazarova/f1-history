@@ -18,7 +18,10 @@ class Layout extends React.Component {
             d3.json('data/labels.json')
         ])
             .then(([rawData, championsData, labelsData]) => {
-                const data = transformData(rawData, championsData, this.state.filter);
+                const data = transformData(rawData, championsData, {
+                    year: '1950',
+                    grandPrix: 'Гран-при Великобритании'
+                });
 
                 this.setState({ isLoading: false, rawData, championsData, labelsData, data });
             });
@@ -27,11 +30,7 @@ class Layout extends React.Component {
     state = {
         isLoading: true,
         rawData: {},
-        data: {},
-        filter: {
-            year: '1950',
-            grandPrix: 'Гран-при Великобритании'
-        }
+        data: {}
     };
 
     render() {

@@ -46,7 +46,8 @@ class SankeyChart {
                 [this.width - this.params.padding.right, this.height - this.params.padding.bottom]
             ])
             .nodes(this.data.nodes)
-            .links(this.data.links);
+            .links(this.data.links)
+            .nodeSort(null);
         this.sankey = this.sankeyFunc();
     }
 
