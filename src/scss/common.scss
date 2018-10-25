@@ -1,69 +1,18 @@
 $media-desktop: 'screen and (min-width: 1000px)';
 
+:root {
+    --base-color: #51a7ca;
+
+    --font-family-thin: ProximaNovaThin;
+    --font-family-black: ProximaNovaBlack;
+    --font-family-thin-italic: ProximaNovaThinItalic;
+}
+
+
 body {
-    font-family: RobotoLight;
+    font-family: var(--font-family-thin);
 }
+
 text {
-    font-size: 12px;    
-}
-
-.no-pointer-events {
-    pointer-events: none;
-}
-
-.text {
-    font-size: 16px;
-    line-height: 26px;
-    font-family: RobotoLight;
-}
-
-h2 {
-    padding: 0;
-    margin: 0;
-    font-size: 30px;
-    white-space: nowrap;
-    font-family: RobotoBold;
-    font-weight: normal;
-}
-
-h3 {
-    padding: 0;
-    margin: 0;
-    font-size: 18px;
-    white-space: nowrap;
-    font-family: RobotoBold;
-    font-weight: normal;
-}
-
-.axis path {
-    stroke: #cccccc;
-}
-
-.year-tick {
-    font-family: RobotoBold;
-    font-size: 16px;
-    fill: #999999;
-}
-
-.bubble__radius-label,
-.bubble__color-label {
-    font-size: 10px;
-}
-
-.bubble__pilot {
-    cursor: pointer;
-}
-
-.bubble__tooltip {
-    position: absolute;
-    width: 200px;
-    background: #ffffff;
-    padding: 10px;
-    border: 1px solid #dddddd;
-    border-left: 5px solid #51a7ca;
-}
-
-.bubble__label {
-    font-family: RobotoLightItalic;
-    font-size: 11px;
+    font-size: 12px;
 }

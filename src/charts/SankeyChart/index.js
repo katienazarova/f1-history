@@ -18,14 +18,14 @@ class SankeyChart {
                 top: 40,
                 right: 40,
                 bottom: 20,
-                left: 200
+                left: 150
             },
             transitionDuration: 300
         };
 
         this.layout();
 
-        d3.select(window).on('resize.updatesvg', debounce(() => {
+        window.addEventListener('resize', debounce(() => {
             this.svg.selectAll('*').remove();
 
             this.layout();
@@ -203,6 +203,9 @@ class SankeyChart {
     }
 
     onLinkMouseOver = d => {
+        const fontFamily = getComputedStyle(document.body)
+            .getPropertyValue('--font-family-black');
+
         d3.selectAll(`.${this.classPrefix}__link`)
         .filter(item => {
             const intersection = new Set(
@@ -217,10 +220,13 @@ class SankeyChart {
 
         d3.selectAll(`.${this.classPrefix}__node-label`)
             .filter(item => item.pilot && d.pilots.has(item.pilot.en))
-            .style('font-family', 'RobotoBold');
+            .style('font-family', fontFamily);
     }
 
     onNodeMouseOver = d => {
+        const fontFamily = getComputedStyle(document.body)
+            .getPropertyValue('--font-family-black');
+
         d3.selectAll(`.${this.classPrefix}__link`)
             .filter(item => {
                 return d.type === 'pilot'
@@ -233,10 +239,13 @@ class SankeyChart {
 
         d3.selectAll(`.${this.classPrefix}__node-label`)
             .filter(item => item[d.type] === d.name || item.name === d.name)
-            .style('font-family', 'RobotoBold');
+            .style('font-family', fontFamily);
     }
 
     onMouseOut = d => {
+        const fontFamily = getComputedStyle(document.body)
+            .getPropertyValue('--font-family-thin');
+
         d3.selectAll(`.${this.classPrefix}__link`)
             .transition()
             .duration(10)
@@ -248,7 +257,7 @@ class SankeyChart {
             .attr('fill', '#000000');
 
         d3.selectAll(`.${this.classPrefix}__node-label`)
-            .style('font-family', 'RobotoLight');
+            .style('font-family', fontFamily);
     };
 }
 

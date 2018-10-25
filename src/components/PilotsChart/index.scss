@@ -3,12 +3,98 @@
 .pilots-chart {
     margin-bottom: 30px;
 
-    &__description {
-        width: 100%;
+    &__title {
+        padding: 0;
+        margin: 0;
+        font-size: 47px;
+        white-space: nowrap;
+        font-family: var(--font-family-black);
+        font-weight: normal;
+    }
 
-        @media #{$media-desktop} {
-            width: 30%;
-            position: absolute;
+    &__subtitle {
+        padding: 0;
+        margin: 0;
+        font-size: 16px;
+        font-weight: normal;
+        font-family: var(--font-family-thin-italic);
+        white-space: nowrap;
+    }
+
+    &__header {
+        width: 30%;
+        position: absolute;
+    }
+
+    &__axis path {
+        stroke: #cccccc;
+    }
+
+    &__year-tick {
+        font-family: var(--font-family-black);
+        font-size: 16px;
+        fill: #999999;
+    }
+
+    &__legend-caption {
+        font-family: var(--font-family-thin-italic);
+    }
+
+    &__radius-label,
+    &__color-label {
+        font-size: 10px;
+    }
+    
+    &__circle {
+        cursor: pointer;
+    }
+
+    &__tooltip {
+        position: absolute;
+        width: 200px;
+        background: #ffffff;
+        padding: 10px;
+        border: 1px solid #dddddd;
+        border-left: 5px solid #51a7ca;
+    }
+
+    &__tooltip-header {
+        font-size: 18px;
+        font-weight: normal;
+        font-family: var(--font-family-black);
+        margin: 0;
+        padding: 0;
+    }
+
+    &__tooltip-link {
+        font-family: var(--font-family-black);
+        color: var(--base-color);
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    &__labels {
+        text {
+            font-family: var(--font-family-thin-italic);
+            font-size: 11px;
+        }        
+    }
+
+    &__info {
+        font-family: var(--font-family-thin-italic);
+        font-size: 12px;
+        margin-top: 40px;
+
+        a {
+            color: var(--base-color);
+            text-decoration: none;
+
+            &:hover {
+                text-decoration: underline;
+            }
         }
     }
 }

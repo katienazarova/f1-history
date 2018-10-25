@@ -1,0 +1,11 @@
+@import "../../scss/common";
+
+.layout {
+    padding: 0 10px;
+
+    @media #{$media-desktop} {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0;
+    }
+}

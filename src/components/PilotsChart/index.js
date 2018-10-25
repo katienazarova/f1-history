@@ -13,7 +13,7 @@ class PilotsChart extends React.Component {
             labels
         } = this.props;
 
-        this.chart = new BubbleChart(pilots, labels, 'svg#bubbles');
+        this.chart = new BubbleChart(pilots, labels, 'svg#bubbles', 'pilots-chart');
         this.chart.render();
     }
 
@@ -22,15 +22,17 @@ class PilotsChart extends React.Component {
                 'pilots-chart': true,
                 [this.props.className]: this.props.className
             })}>
-                <div className='pilots-chart__description'>
-                    <h2>Пилоты</h2>
-                    <div className='text'>
-                        <p>«Формула-1» — чемпионат мира по кольцевым автогонкам на автомобилях 
-                        с открытыми колёсами. Чемпионат мира «Формулы-1» проводится каждый год 
-                        и состоит из отдельных этапов. В конце года выявляется победитель чемпионата.</p>
+                <div className='pilots-chart__header'>
+                    <h1 className='pilots-chart__title'>Формула-1</h1>
+                    <h2  className='pilots-chart__subtitle'>С 1950-го до настоящего времени</h2>
+
+                    <div  className='pilots-chart__info'>
+                        Источники данных:<br/>
+                        <a href="http://ergast.com/mrd/" target="_blank">Ergast Developer API</a><br/>
+                        <a href="https://www.wikipedia.org/" target="_blank">Wikipedia</a>
                     </div>
                 </div>
-                <svg id='bubbles' width='100%' height='600'></svg>
+                <svg id='bubbles' width='100%' height='700'></svg>
         </div>;
     }
 }

@@ -50,49 +50,37 @@ class LabelComponent {
     }
 
     renderLeftBottomLabel(label, currentElement, container) {
-        const lowestElement = this.getLowestElement(currentElement);
+        const baseColor = getComputedStyle(document.body)
+            .getPropertyValue('--base-color');
 
-        const length = this.transformCoordinates(lowestElement).y - this.transformCoordinates(currentElement).y + 20;
-
-        const x2 = currentElement.x;
-        const y2 = currentElement.y + length;
-
-        const x3 = x2 + 60;
-        const y3 = y2;
+        const x2 = currentElement.x + 100;
+        const y2 = currentElement.y;
 
         container
             .append('line')
             .attr('x1', currentElement.x)
             .attr('y1', currentElement.y)
-            .attr('x2', currentElement.x)
-            .attr('y2', currentElement.y + length)
+            .attr('x2', x2)
+            .attr('y2', y2)
             .attr('stroke', '#333333');
 
         container
             .append('line')
             .attr('x1', x2)
-            .attr('y1', y2)
-            .attr('x2', x3)
-            .attr('y2', y3)
-            .attr('stroke', '#333333');
-
-        container
-            .append('line')
-            .attr('x1', x3)
-            .attr('y1', y3 - 25)
-            .attr('x2', x3)
-            .attr('y2', y3 + 25)
-            .attr('stroke', '#333333');
+            .attr('y1', y2 - 25)
+            .attr('x2', x2)
+            .attr('y2', y2 + 25)
+            .attr('stroke', baseColor)
+            .attr('stroke-width', 3);
 
         const text = container
             .append('text')
-            .attr('class', 'bubble__label')
-            .attr('x', x3 + 5)
-            .attr('y', y3 - 25);
+            .attr('x', x2 + 5)
+            .attr('y', y2 - 25);
 
         label.text.split('\n').forEach(item => {
             text.append('tspan')
-                .attr('x', x3 + 5)
+                .attr('x', x2 + 5)
                 .attr('dy', 11)
                 .text(item);
         });
@@ -102,6 +90,9 @@ class LabelComponent {
         const highestElement = this.getHighestElement(currentElement, 100);
 
         const length = this.transformCoordinates(currentElement).y - this.transformCoordinates(highestElement).y + 20;
+
+        const baseColor = getComputedStyle(document.body)
+            .getPropertyValue('--base-color');
 
         const x2 = currentElement.x;
         const y2 = currentElement.y - length;
@@ -116,21 +107,21 @@ class LabelComponent {
 
         container
             .append('line')
-            .attr('x1', x2 - 100)
+            .attr('x1', x2 - 80)
             .attr('y1', y2)
-            .attr('x2', x2 + 100)
+            .attr('x2', x2 + 80)
             .attr('y2', y2)
-            .attr('stroke', '#333333');
+            .attr('stroke', baseColor)
+            .attr('stroke-width', 3);
 
         const text = container
             .append('text')
-            .attr('class', 'bubble__label')
-            .attr('x', x2 - 100)
+            .attr('x', x2 - 80)
             .attr('y', y2 - 50);
 
         label.text.split('\n').forEach(item => {
             text.append('tspan')
-                .attr('x', x2 - 100)
+                .attr('x', x2 - 80)
                 .attr('dy', 11)
                 .text(item);
         });
@@ -139,7 +130,10 @@ class LabelComponent {
     renderRightBottomLabel(label, currentElement, container) {
         const lowestElement = this.getLowestElement(currentElement, 110, 'left');
 
-        const length = this.transformCoordinates(lowestElement).y - this.transformCoordinates(currentElement).y + 20;
+        const length = this.transformCoordinates(lowestElement).y - this.transformCoordinates(currentElement).y + 30;
+
+        const baseColor = getComputedStyle(document.body)
+            .getPropertyValue('--base-color');
 
         const x2 = currentElement.x;
         const y2 = currentElement.y + length;
@@ -158,11 +152,11 @@ class LabelComponent {
             .attr('y1', y2)
             .attr('x2', x2 + 100)
             .attr('y2', y2)
-            .attr('stroke', '#333333');
+            .attr('stroke', baseColor)
+            .attr('stroke-width', 3);
 
         const text = container
             .append('text')
-            .attr('class', 'bubble__label')
             .attr('x', x2 - 100)
             .attr('y', y2 + 3);
 
@@ -182,7 +176,7 @@ class LabelComponent {
         const x2 = currentElement.x;
         const y2 = currentElement.y - length;
 
-        const x3 = x2 - 100;
+        const x3 = x2 - 50;
         const y3 = y2;
 
         container
@@ -211,7 +205,6 @@ class LabelComponent {
 
         const text = container
             .append('text')
-            .attr('class', 'bubble__label')
             .attr('text-anchor', 'end')
             .attr('x', x3 - 5)
             .attr('y', y3 - 23);
@@ -227,12 +220,12 @@ class LabelComponent {
     renderSideTopLabel(label, currentElement, container) {
         const highestElement = this.getHighestElement(currentElement);
 
-        const length = this.transformCoordinates(currentElement).y - this.transformCoordinates(highestElement).y + 5;
+        const length = this.transformCoordinates(currentElement).y - this.transformCoordinates(highestElement).y + 40;
 
         const x2 = currentElement.x;
         const y2 = currentElement.y - length;
 
-        const x3 = x2 + 100;
+        const x3 = x2 + 50;
         const y3 = y2;
 
         container

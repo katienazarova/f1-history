@@ -52,7 +52,7 @@ class Dropdown extends React.Component {
         this.props.onFocus && this.props.onFocus();
     };
 
-    onBlur = value => {
+    onBlur = () => {
         this.setState({ isFocused: false });
         this.props.onBlur && this.props.onBlur();
     };
@@ -104,7 +104,30 @@ class Dropdown extends React.Component {
         this.setState({ 
             isActive: !this.state.isActive,
             focusedItemIndex: -1
+        }, () => {
+            if (this.state.isActive) {
+                const items = this.refs.list.querySelectorAll('.dropdown__list-in');
+
+                const { 
+                    sumWidth,
+                    maxWidth 
+                } = [...items].reduce((result, item) => {
+                    result.sumWidth = result.sumWidth + item.clientWidth;
+                    result.maxWidth = (item.clientWidth > result.maxWidth)
+                        ? item.clientWidth
+                        : result.maxWidth;
+
+                    return result;
+                }, { sumWidth: 0, maxWidth: 0 });
+
+                if (this.refs.list.clientWidth < sumWidth) {
+                    const columnsCount = Math.floor(this.refs.list.clientWidth / maxWidth);
+
+                    this.setState({ columnsCount });
+                }
+            }
         });
+
         event.nativeEvent.stopImmediatePropagation();
     };
 
@@ -120,10 +143,11 @@ class Dropdown extends React.Component {
             title,
             current,
             list,
-            columnsCount,
             className,
             tabIndex            
         } = this.props;
+
+        const columnsCount = this.state.columnsCount || this.props.columnsCount;
 
         const columns = [],
             count = Math.ceil(list.length / columnsCount);

@@ -2,13 +2,13 @@ import React from 'react';
 import * as d3 from 'd3';
 import classNames from 'classnames';
 
-import Header from '../Header';
 import RacesChart from '../RacesChart';
 import PilotsChart from '../PilotsChart';
 
 import { transformData } from '../../utils/functions';
 
 import '../../../build/fonts.css';
+import './index.scss';
 
 class Layout extends React.Component {
     componentWillMount() {
@@ -45,8 +45,6 @@ class Layout extends React.Component {
                 [this.props.className]: this.props.className
             })}>
             
-            <Header />
-
             { !this.state.isLoading ?
                 <PilotsChart pilots={data.pilots}
                              labels={labelsData} />
@@ -55,17 +53,6 @@ class Layout extends React.Component {
             { !this.state.isLoading ?
                 <RacesChart data={rawData} />
             : null }
-
-            { /*!this.state.isLoading ?
-                <div>
-                    <div className='races_results'>
-                        <Filter filter={filter}
-                                fields={filterFields}
-                                onChange={this.onFilterChange} />
-                    </div>                   
-                    <svg id='sankey' width='100%' height='600'></svg>
-                </div>
-            : null*/ }
         </div>;
     }
 }
