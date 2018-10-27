@@ -40,6 +40,10 @@
         font-family: var(--font-family-thin-italic);
     }
 
+    &__legend-item {
+        cursor: pointer;
+    }
+
     &__radius-label,
     &__color-label {
         font-size: 10px;

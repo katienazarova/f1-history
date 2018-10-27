@@ -265,6 +265,9 @@ class BubbleChart {
     renderRadiusLegend = container => {
         const data = [300, 250, 200, 150, 100, 50, 1];
 
+        const baseColor = getComputedStyle(document.body)
+            .getPropertyValue('--base-color');
+
         let x = this.outerWidth - 310,
             y = this.outerHeight - 2 * this.radiusScale(300) - 20;
 
@@ -278,7 +281,8 @@ class BubbleChart {
             .data(data)
             .enter()
             .append('circle')
-            .attr('cx', (d, i) => {
+            .attr('class', `${this.classPrefix}__legend-item`)
+            .attr('cx', d => {
                 const cx = x + (this.radiusScale(d) - 2) + prev;
 
                 prev += 2 * (this.radiusScale(d) - 2) + 5;
@@ -287,7 +291,24 @@ class BubbleChart {
             })
             .attr('cy', d => y + (this.radiusScale(300) - this.radiusScale(d)) + this.radiusScale(300) + 5)
             .attr('r', d => this.radiusScale(d) - 2)
-            .attr('fill', '#51a7ca');
+            .attr('fill', baseColor)
+            .on('mouseover', d => {
+                const dIndex = data.findIndex(item => item === d);
+
+                d3.selectAll(`.${this.classPrefix}__circle`)
+                    .filter(item => {
+                        return item.type !== 'year'
+                            && (item.racesCount < d
+                            || (dIndex && item.racesCount > data[dIndex - 1]));
+                    })
+                    .transition()
+                    .attr('fill', '#cccccc');
+            })
+            .on('mouseout', d => {
+                d3.selectAll(`.${this.classPrefix}__circle`)
+                    .transition()
+                    .attr('fill', d => this.getColor(d));
+            });
 
         prev = 0;
         container
@@ -339,7 +360,18 @@ class BubbleChart {
             .attr('y', y + 7)
             .attr('width', 30)
             .attr('height', 10)
-            .attr('fill', d => d ? this.colorScale(d) : '#51a7ca');
+            .attr('fill', d => d ? this.colorScale(d) : '#51a7ca')
+            .on('mouseover', d => {
+                d3.selectAll(`.${this.classPrefix}__circle`)
+                    .filter(item => item.isChampion.size !== d)
+                    .transition()
+                    .attr('fill', '#cccccc');
+            })
+            .on('mouseout', d => {
+                d3.selectAll(`.${this.classPrefix}__circle`)
+                    .transition()
+                    .attr('fill', d => this.getColor(d));
+            });
 
         container
             .selectAll(`text.${this.classPrefix}__color-label`)

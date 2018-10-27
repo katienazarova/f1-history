@@ -130,7 +130,8 @@ class LabelComponent {
     renderRightBottomLabel(label, currentElement, container) {
         const lowestElement = this.getLowestElement(currentElement, 110, 'left');
 
-        const length = this.transformCoordinates(lowestElement).y - this.transformCoordinates(currentElement).y + 30;
+        const length = this.transformCoordinates(lowestElement).y 
+            - this.transformCoordinates(currentElement).y + 40;
 
         const baseColor = getComputedStyle(document.body)
             .getPropertyValue('--base-color');
@@ -171,7 +172,11 @@ class LabelComponent {
     renderRightTopLabel(label, currentElement, container) {
         const highestElement = this.getHighestElement(currentElement, null, 'left');
 
-        const length = this.transformCoordinates(currentElement).y - this.transformCoordinates(highestElement).y + 20;
+        const length = this.transformCoordinates(currentElement).y 
+            - this.transformCoordinates(highestElement).y + 30;
+
+        const baseColor = getComputedStyle(document.body)
+            .getPropertyValue('--base-color');
 
         const x2 = currentElement.x;
         const y2 = currentElement.y - length;
@@ -201,7 +206,8 @@ class LabelComponent {
             .attr('y1', y3 - 21)
             .attr('x2', x3)
             .attr('y2', y3 + 21)
-            .attr('stroke', '#333333');
+            .attr('stroke', baseColor)
+            .attr('stroke-width', 3);
 
         const text = container
             .append('text')
@@ -221,6 +227,9 @@ class LabelComponent {
         const highestElement = this.getHighestElement(currentElement);
 
         const length = this.transformCoordinates(currentElement).y - this.transformCoordinates(highestElement).y + 40;
+
+        const baseColor = getComputedStyle(document.body)
+            .getPropertyValue('--base-color');
 
         const x2 = currentElement.x;
         const y2 = currentElement.y - length;
@@ -250,7 +259,8 @@ class LabelComponent {
             .attr('y1', y3 - 25)
             .attr('x2', x3)
             .attr('y2', y3 + 25)
-            .attr('stroke', '#333333');
+            .attr('stroke', baseColor)
+            .attr('stroke-width', 3);
 
         const text = container
             .append('text')
@@ -269,6 +279,9 @@ class LabelComponent {
     renderSideBottomLabel(label, currentElement, container, lastRightElement) {
         const length = this.transformCoordinates(lastRightElement).x - this.transformCoordinates(currentElement).x + 20;
 
+        const baseColor = getComputedStyle(document.body)
+            .getPropertyValue('--base-color');
+
         const x2 = currentElement.x + length;
         const y2 = currentElement.y;
 
@@ -286,7 +299,8 @@ class LabelComponent {
             .attr('y1', y2 - 25)
             .attr('x2', x2)
             .attr('y2', y2 + 25)
-            .attr('stroke', '#333333');
+            .attr('stroke', baseColor)
+            .attr('stroke-width', 3);
 
         const text = container
             .append('text')
