@@ -1,6 +1,7 @@
 import React from 'react';
 import * as d3 from 'd3';
 import classNames from 'classnames';
+import * as topojson from 'topojson-client';
 
 import RacesChart from '../RacesChart';
 import PilotsChart from '../PilotsChart';

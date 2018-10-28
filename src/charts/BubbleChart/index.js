@@ -363,7 +363,7 @@ class BubbleChart {
             .attr('fill', d => d ? this.colorScale(d) : '#51a7ca')
             .on('mouseover', d => {
                 d3.selectAll(`.${this.classPrefix}__circle`)
-                    .filter(item => item.isChampion.size !== d)
+                    .filter(item => item.type !== 'year' && item.isChampion.size !== d)
                     .transition()
                     .attr('fill', '#cccccc');
             })

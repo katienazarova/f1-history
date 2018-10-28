@@ -18,7 +18,8 @@
     "lodash.throttle": "^4.1.1",
     "prop-types": "^15.6.2",
     "react": "^16.4.2",
-    "react-dom": "^16.4.2"
+    "react-dom": "^16.4.2",
+    "topojson-client": "^3.0.0"
   },
   "devDependencies": {
     "autoprefixer-loader": "^3.2.0",
