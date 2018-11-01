@@ -2,6 +2,7 @@ $media-desktop: 'screen and (min-width: 1000px)';
 
 :root {
     --base-color: #51a7ca;
+    --base-color-lighter: #80cce2;
 
     --font-family-thin: ProximaNovaThin;
     --font-family-black: ProximaNovaBlack;
@@ -15,4 +16,13 @@ body {
 
 text {
     font-size: 12px;
+}
+
+h2 {
+    font-family: var(--font-family-black);
+    font-weight: normal;
+    font-size: 32px;
+    text-align: center;
+    margin: 10px 0;
+    padding: 0;
 }

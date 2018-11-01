@@ -18,7 +18,7 @@ class RacesChart extends React.Component {
     };
 
     componentWillMount() {
-        const data = transformData(this.props.data, [], this.state.filter);
+        const data = transformData(this.props.data, [], [], this.state.filter);
 
         this.setState({ data });
     }
@@ -39,7 +39,7 @@ class RacesChart extends React.Component {
     };
 
     updateData() {
-        const data = transformData(this.props.data, [], this.state.filter);
+        const data = transformData(this.props.data, [], [], this.state.filter);
 
         this.setState({ data });
 
@@ -66,6 +66,7 @@ class RacesChart extends React.Component {
                 'races-chart': true,
                 [this.props.className]: this.props.className
             })}>
+                <h2>Результаты гран-при</h2>
                 <Filter filter={filter}
                         fields={filterFields}
                         onChange={this.onFilterChange} />

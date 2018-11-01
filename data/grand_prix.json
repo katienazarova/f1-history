@@ -1,0 +1,170 @@
+[
+    {
+        "name": "British Grand Prix",
+        "country": "United Kingdom",
+        "description": "<p>Гран-при Великобритании 1950 года, прошедший на автодроме в Сильверстоуне, стал первым в истории регулярных чемпионатов «Формулы-1». </p><p>До 1987 года место его проведения регулярно менялось. В разные периоды Гран-при проводился на трассах «Сильверстоун», «Брэндс Хэтч» (с 1964 по 1986, чередуясь ежегодно с Сильверстоуном) и в «Эйнтри» (больше известная, как трасса для скачек). А после 1987 года соревнования проводятся исключительно на автодроме «Сильверстоун».</p>",
+        "url": "https://ru.wikipedia.org/wiki/Гран-при_Великобритании"
+    },
+    {
+        "name": "Monaco Grand Prix",
+        "country": "Monaco",
+        "description": ""
+    },
+    {
+        "name": "Swiss Grand Prix",
+        "country": "Switzerland",
+        "description": ""
+    },
+    {
+        "name": "Belgian Grand Prix",
+        "country": "Belgium"
+    },
+    {
+        "name": "French Grand Prix",
+        "country": "France"
+    },
+    {
+        "name": "Italian Grand Prix",
+        "country": "Italy"
+    },
+    {
+        "name": "German Grand Prix",
+        "country": "Germany"
+    },
+    {
+        "name": "Spanish Grand Prix",
+        "country": "Spain"
+    },
+    {
+        "name": "Dutch Grand Prix",
+        "country": "Netherlands"
+    },
+    {
+        "name": "Argentine Grand Prix",
+        "country": "Argentina"
+    },
+    {
+        "name": "Pescara Grand Prix",
+        "country": "Italy"
+    },
+    {
+        "name": "Portuguese Grand Prix",
+        "country": "Portugal"
+    },
+    {
+        "name": "Moroccan Grand Prix",
+        "country": "Morocco"
+    },
+    {
+        "name": "United States Grand Prix",
+        "country": "United States of America"
+    },
+    {
+        "name": "South African Grand Prix",
+        "country": "South Africa"
+    },
+    {
+        "name": "Mexican Grand Prix",
+        "country": "Mexico"
+    },
+    {
+        "name": "Austrian Grand Prix",
+        "country": "Austria"
+    },
+    {
+        "name": "Canadian Grand Prix",
+        "country": "Canada"
+    },
+    {
+        "name": "Brazilian Grand Prix",
+        "country": "Brazil"
+    },
+    {
+        "name": "Swedish Grand Prix",
+        "country": "Sweden"
+    },
+    {
+        "name": "United States Grand Prix West",
+        "country": "United States of America"
+    },
+    {
+        "name": "Japanese Grand Prix",
+        "country": "Japan"
+    },
+    {
+        "name": "San Marino Grand Prix",
+        "country": "San Marino"
+    },
+    {
+        "name": "Caesars Palace Grand Prix",
+        "country": "United States of America"
+    },
+    {
+        "name": "Detroit Grand Prix",
+        "country": "United States of America"
+    },
+    {
+        "name": "European Grand Prix",
+        "country": "Europe"
+    },
+    {
+        "name": "Dallas Grand Prix",
+        "country": "United States of America"
+    },
+    {
+        "name": "Australian Grand Prix",
+        "country": "Australia"
+    },
+    {
+        "name": "Hungarian Grand Prix",
+        "country": "Hungary"
+    },
+    {
+        "name": "Pacific Grand Prix",
+        "country": "Japan"
+    },
+    {
+        "name": "Luxembourg Grand Prix",
+        "country": "Luxembourg"
+    },
+    {
+        "name": "Malaysian Grand Prix",
+        "country": "Malaysia"
+    },
+    {
+        "name": "Bahrain Grand Prix",
+        "country": "Bahrain"
+    },
+    {
+        "name": "Chinese Grand Prix",
+        "country": "China"
+    },
+    {
+        "name": "Turkish Grand Prix",
+        "country": "Turkey"
+    },
+    {
+        "name": "Singapore Grand Prix",
+        "country": "Singapore"
+    },
+    {
+        "name": "Abu Dhabi Grand Prix",
+        "country": "United Arab Emirates"
+    },
+    {
+        "name": "Korean Grand Prix",
+        "country": "South Korea"
+    },
+    {
+        "name": "Indian Grand Prix",
+        "country": "India"
+    },
+    {
+        "name": "Russian Grand Prix",
+        "country": "Russia"
+    },
+    {
+        "name": "Azerbaijan Grand Prix",
+        "country": "Azerbaijan"
+    }
+]

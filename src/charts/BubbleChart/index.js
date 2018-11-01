@@ -67,7 +67,7 @@ class BubbleChart {
 
         this.colorScale = d3.scaleLinear()
             .domain(d3.range(...d3.extent(this.data, d => d.isChampion && d.isChampion.size || 0)))
-            .range(['#51a7ca', '#50b229', '#f6b42a', '#e77820', '#d74e24', '#c21729'])
+            .range(['#51a7ca', '#50b229', '#f6b42a', '#e77820', '#d74e24', '#c21729', '#a8002d', '#8b002f'])
             .interpolate(d3.interpolateHcl);
 
         const racesCountRange = this.documentWidth < 1200 ? [6, 20] : [7, 35];
@@ -91,49 +91,10 @@ class BubbleChart {
                 .attr('transform', `translate(0,${this.height / 2 + this.params.topPadding}) rotate(-${Math.round(this.angle)})`);
         }
 
-        //this.renderDebugInfo();
         this.renderAxis();
         this.renderCircles();
         this.renderLegend();
     }
-
-    renderDebugInfo = () => {
-        this.svg
-            .append('line')
-            .attr('x1', 0)
-            .attr('y1', 0)
-            .attr('x2', this.outerWidth)
-            .attr('y2', 0)
-            .attr('stroke', '#ff0000')
-            .attr('stroke-width', '1px');
-
-        this.svg
-            .append('line')
-            .attr('x1', this.outerWidth - 1)
-            .attr('y1', 0)
-            .attr('x2', this.outerWidth - 1)
-            .attr('y2', this.outerHeight)
-            .attr('stroke', '#ff0000')
-            .attr('stroke-width', '1px');
-
-        this.svg
-            .append('line')
-            .attr('x1', 0)
-            .attr('y1', this.outerHeight - 1)
-            .attr('x2', this.outerWidth)
-            .attr('y2', this.outerHeight - 1)
-            .attr('stroke', '#ff0000')
-            .attr('stroke-width', '1px');
-
-        this.svg
-            .append('line')
-            .attr('x1', 0)
-            .attr('y1', 0)
-            .attr('x2', 0)
-            .attr('y2', this.outerHeight)
-            .attr('stroke', '#ff0000')
-            .attr('stroke-width', '1px');
-    };
 
     renderCircles() {
         const links = this.getLinks();
@@ -194,7 +155,8 @@ class BubbleChart {
         d3.select('body')
             .append('div')	
             .attr('class', `${this.classPrefix}__tooltip`)				
-            .style('opacity', 0);
+            .style('opacity', 0)
+            .style('display', 'none');
     }
 
     renderAxis = () => {
@@ -268,7 +230,7 @@ class BubbleChart {
         const baseColor = getComputedStyle(document.body)
             .getPropertyValue('--base-color');
 
-        let x = this.outerWidth - 310,
+        let x = this.outerWidth - 280,
             y = this.outerHeight - 2 * this.radiusScale(300) - 20;
 
         if (this.documentWidth < 1200) {
@@ -333,13 +295,13 @@ class BubbleChart {
             .attr('class', `${this.classPrefix}__legend-caption`)
             .attr('x', x)
             .attr('y', y)
-            .text('Радиус круга зависит от количества гонок');
+            .text('Радиус зависит от количества гонок');
     };
 
     renderColorLegend = container => {
         const data = [0, 1, 2, 3, 4, 5, 6, 7];
 
-        let x = this.outerWidth - 310,
+        let x = this.outerWidth - 280,
             y = this.outerHeight - 150;
 
         if (this.documentWidth < 1200) {
@@ -389,7 +351,7 @@ class BubbleChart {
             .attr('class', `${this.classPrefix}__legend-caption`)
             .attr('x', x)
             .attr('y', y)
-            .text('Цвет круга зависит от количества чемпионских титулов');
+            .text('Цвет зависит от количества чемпионских титулов');
     };
 
     renderLabels = () => {
@@ -446,6 +408,7 @@ class BubbleChart {
             .style('left', `${pageX}px`)		
             .style('top', `${pageY}px`)
             .attr('data-pilot', d.name)
+            .style('display', 'block')
             .transition()		
             .duration(100)		
             .style('opacity', 1);
@@ -456,10 +419,27 @@ class BubbleChart {
     }
 
     onCircleMouseOut = d => {
-        d3.selectAll(`.${this.classPrefix}__circle`)
-            .attr('stroke', '#ffffff');
-
         this.hideTooltip(d);
+    };
+
+    hideTooltip = d => {
+        setTimeout(() => {
+            const area = d3.selectAll(`.${this.classPrefix}__circle`)
+                           .filter(item => item.name === d.name);
+            const areaNode = area.node();
+
+            const tooltip = d3.select(`.${this.classPrefix}__tooltip[data-pilot="${d.name}"]`);
+            const tooltipNode = tooltip.node();
+
+            if (!tooltipNode
+                || tooltipNode !== tooltipNode.parentElement.querySelector(':hover')
+                && areaNode !== areaNode.parentElement.querySelector(':hover')) {
+                area.attr('stroke', '#ffffff');
+                tooltip
+                    .style('opacity', 0)
+                    .style('display', 'none');
+            }            
+        }, 300);
     };
 
     formatYears = years => {
@@ -496,18 +476,6 @@ class BubbleChart {
         return `в ${ranges.map(range => range.length === 1 
             ? range[0] 
             : `${range[0]}–${range[range.length - 1]}`).join(', ')} гг`;
-    };
-
-    hideTooltip = d => {
-        setTimeout(() => {
-            const tooltip = d3.select(`.${this.classPrefix}__tooltip[data-pilot="${d.name}"]`);
-            const tooltipNode = tooltip.node();
-
-            if (tooltipNode && tooltipNode !== tooltipNode.parentElement.querySelector(':hover')) {
-                d3.select(`.${this.classPrefix}__tooltip`)
-                    .style('opacity', 0);
-            }            
-        }, 300);
     };
 
     getColor = d => {

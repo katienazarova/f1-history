@@ -1,10 +1,10 @@
 import React from 'react';
 import * as d3 from 'd3';
 import classNames from 'classnames';
-import * as topojson from 'topojson-client';
 
 import RacesChart from '../RacesChart';
 import PilotsChart from '../PilotsChart';
+import GrandPrixMap from '../GrandPrixMap';
 
 import { transformData } from '../../utils/functions';
 
@@ -16,15 +16,17 @@ class Layout extends React.Component {
         Promise.all([
             d3.json('data/race_results.json'),
             d3.json('data/champions.json'),
-            d3.json('data/labels.json')
+            d3.json('data/labels.json'),
+            d3.json('data/topoworld.json'),
+            d3.json('data/grand_prix.json')
         ])
-            .then(([rawData, championsData, labelsData]) => {
-                const data = transformData(rawData, championsData, {
+            .then(([rawData, championsData, labelsData, mapData, grandPrixData]) => {
+                const data = transformData(rawData, championsData, grandPrixData, {
                     year: '1950',
                     grandPrix: 'Гран-при Великобритании'
                 });
 
-                this.setState({ isLoading: false, rawData, championsData, labelsData, data });
+                this.setState({ isLoading: false, rawData, championsData, labelsData, mapData, data });
             });
     }
 
@@ -38,7 +40,8 @@ class Layout extends React.Component {
         const { 
             data, 
             rawData, 
-            labelsData 
+            labelsData,
+            mapData
         } = this.state;
 
         return <div className={classNames({
@@ -49,6 +52,11 @@ class Layout extends React.Component {
             { !this.state.isLoading ?
                 <PilotsChart pilots={data.pilots}
                              labels={labelsData} />
+            : null }
+
+            { !this.state.isLoading ?
+                <GrandPrixMap countries={data.countries}
+                              mapData={mapData} />
             : null }
 
             { !this.state.isLoading ?

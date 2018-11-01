@@ -1,0 +1,39 @@
+@import "../../scss/common";
+
+.grand-prix-map {
+    margin-bottom: 50px;
+
+    &__country {
+
+        &_type_active {
+            cursor: pointer;
+        }
+    }
+
+    &__tooltip {
+        position: absolute;
+        width: 500px;
+        background: #ffffff;
+        padding: 10px;
+        border: 1px solid #dddddd;
+        border-left: 5px solid #51a7ca;
+    }
+
+    &__tooltip-header {
+        font-size: 18px;
+        font-weight: normal;
+        font-family: var(--font-family-black);
+        margin: 0;
+        padding: 0;
+    }
+
+    &__tooltip-link {
+        font-family: var(--font-family-black);
+        color: var(--base-color);
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}

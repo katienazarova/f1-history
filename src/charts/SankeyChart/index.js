@@ -165,6 +165,8 @@ class SankeyChart {
             { name: 'constructor', title: 'Конструктор' },
             { name: 'place', title: 'Место' }
         ];
+        const color = getComputedStyle(document.body)
+            .getPropertyValue('--base-color-lighter');
 
         for (let dimension of dimensions) {
             let node = this.sankey.nodes.find(item => item.type === dimension.name);
@@ -173,7 +175,7 @@ class SankeyChart {
             this.svg
                 .append('path')
                 .attr('d', parallelogram(node.x0 - (width / 2), 0, width, 20, 5, 5))
-                .attr('fill', '#51a7ca');
+                .attr('fill', color);
 
             this.svg
                 .append('text')

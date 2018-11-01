@@ -10,20 +10,32 @@ export function transformCoordinates(angle, center, translateX, translateY) {
     }
 }
 
-export function transformData(data, championsData, filter) {
+export function transformData(data, championsData, grandPrixData, filter = {}) {
     const nodes = {};
     const links = {};
     const constructors = new Set();
     const years = new Map();
     const pilots = {};
 
-    data.forEach(item => {
+    const countriesByGrandPrix = grandPrixData.reduce((result, item) => {
+        item.years = new Set();
+        result[item.name] = item;
+
+        return result;
+    }, {});
+
+    data.forEach((item, i) => {
         const grandPrix = years.has(item.year) 
             ? years.get(item.year) 
             : new Set();
 
         grandPrix.add(item.grand_prix.ru);
         years.set(item.year, grandPrix);
+
+        if (countriesByGrandPrix[item.grand_prix.en]) {
+            countriesByGrandPrix[item.grand_prix.en].years.add(item.year);
+            countriesByGrandPrix[item.grand_prix.en].title = item.grand_prix.ru;
+        }
 
         if (pilots[item.pilot.en]) {
             pilots[item.pilot.en].racesCount++;
@@ -74,12 +86,26 @@ export function transformData(data, championsData, filter) {
         addLink(links, item, item.constructor, item.place);
     });
 
+    const countries = Object.values(countriesByGrandPrix)
+        .reduce((result, item) => {
+            if (result[item.country]) {
+                result[item.country].years = new Set([...result[item.country].years, ...item.years]);
+            } else {
+                result[item.country] = item;
+            }
+
+            result[item.country].value = result[item.country].years.size;
+
+            return result;
+        }, {});
+
     return {
         nodes: Object.values(nodes),
         links: Object.values(links),
         pilots: Object.values(pilots),
         constructors: [...constructors],
-        years        
+        years,
+        countries
     };
 }
 
