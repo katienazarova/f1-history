@@ -3,6 +3,14 @@
 .pilots-chart {
     margin-bottom: 50px;
 
+    &__header {
+
+        @media #{$media-desktop} {
+            width: 30%;
+            position: absolute;
+        }
+    }
+
     &__title {
         padding: 0;
         margin: 0;
@@ -20,11 +28,6 @@
         font-family: var(--font-family-thin-italic);
         white-space: nowrap;
         text-align: left;
-    }
-
-    &__header {
-        width: 30%;
-        position: absolute;
     }
 
     &__axis path {
@@ -91,7 +94,12 @@
     &__info {
         font-family: var(--font-family-black);
         font-size: 12px;
-        margin-top: 40px;
+        margin-top: 30px;
+
+        @media #{$media-ipad} {
+            position: absolute;
+            top: 140px;    
+        }
 
         a {
             color: var(--base-color);

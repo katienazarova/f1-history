@@ -43,23 +43,18 @@ class BubbleChart {
     }
 
     layout() {
-        this.documentWidth = document.body.clientWidth;
-
-        if (this.documentWidth < 1200) {
-            this.params.bottomPadding = 100;
-        }
-
-        if (this.documentWidth < 660) {
-            this.params.bottomPadding = 0;
-        }
+        const DEFAULT_WIDTH = 1200;
+        const DEFAULT_HEIGHT = 700;
 
         this.outerWidth = this.svg.node().clientWidth;
-        this.outerHeight = this.svg.node().clientHeight;
+        this.outerHeight = this.isPortrait()
+            ? 450
+            : (this.outerWidth * DEFAULT_HEIGHT) / DEFAULT_WIDTH;
 
         this.width = this.outerWidth;
         this.height = this.outerHeight - this.params.topPadding - this.params.bottomPadding;
 
-        this.length = this.documentWidth < 660 
+        this.length = this.isMobile() 
             ? this.width 
             : Math.sqrt(this.width * this.width + this.height * this.height);
         this.angleRad = Math.acos(this.width / this.length);
@@ -70,7 +65,9 @@ class BubbleChart {
             .range(['#51a7ca', '#50b229', '#f6b42a', '#e77820', '#d74e24', '#c21729', '#a8002d', '#8b002f'])
             .interpolate(d3.interpolateHcl);
 
-        const racesCountRange = this.documentWidth < 1200 ? [6, 20] : [7, 35];
+        const racesCountRange = this.isDesktopLarge()
+            ? [7, 35]
+            : this.isMobile() ? [5, 18] : [6, 25];
 
         this.radiusScale = d3.scaleLinear()
             .domain(d3.extent(this.data, d => d.racesCount))
@@ -79,13 +76,15 @@ class BubbleChart {
         this.xScale = d3.scaleLinear()
             .domain([1938, 2025])
             .range([0, this.length]);
+
+        this.svg.attr('height', this.outerHeight);
     }
 
     render() {
         this.chartContainer = this.svg
             .append('g');
 
-        if (this.documentWidth > 660) {
+        if (!this.isMobile()) {
             this.chartContainer
                 .attr('transform-origin', `0px ${this.height / 2 + this.params.topPadding}px`)
                 .attr('transform', `translate(0,${this.height / 2 + this.params.topPadding}) rotate(-${Math.round(this.angle)})`);
@@ -102,7 +101,6 @@ class BubbleChart {
         const simulation = d3.forceSimulation(this.data)
             .force('x', d3.forceX(d => this.xScale([...d.years][0])).strength(1))
             .force('y', d3.forceY(this.height / 2))
-            .force('link', d3.forceLink().links(links).distance(this.documentWidth < 1200 ? 100: 200))
             .force('collide', d3.forceCollide(d => this.radiusScale(d.racesCount) - 2).strength(1))
             .on('tick', d => {
                 for (let i = 0; i < 40; i++) {
@@ -121,6 +119,10 @@ class BubbleChart {
                 this.renderLabels();
                 this.renderTicks();
             });
+
+        if (this.isDesktopLarge()) {
+            simulation.force('link', d3.forceLink().links(links).distance(200));
+        }
 
         this.data
             .filter(d => d.type === 'year')
@@ -233,7 +235,7 @@ class BubbleChart {
         let x = this.outerWidth - 280,
             y = this.outerHeight - 2 * this.radiusScale(300) - 20;
 
-        if (this.documentWidth < 1200) {
+        if (this.isMobile()) {
             x = 0;
         }
 
@@ -301,16 +303,19 @@ class BubbleChart {
     renderColorLegend = container => {
         const data = [0, 1, 2, 3, 4, 5, 6, 7];
 
-        let x = this.outerWidth - 280,
-            y = this.outerHeight - 150;
+        const isMobile = this.isMobile();
+        const isPortrait = this.isPortrait();
 
-        if (this.documentWidth < 1200) {
-            if (this.documentWidth < 660) {
-                x = 0;
-            } else {
-                x = 350;
-                y = this.outerHeight - 2 * this.radiusScale(300) - 20;
-            }
+        let x = this.outerWidth - 280,
+            y = this.outerHeight - 2 * this.radiusScale(300) - 90;
+
+        if (isMobile && !isPortrait) {
+            x = 230;
+            y = this.outerHeight - 2 * this.radiusScale(300) - 20;
+        }
+
+        if (isMobile && isPortrait) {
+            x = 0;
         }
 
         container
@@ -355,7 +360,7 @@ class BubbleChart {
     };
 
     renderLabels = () => {
-        if (this.documentWidth < 1200) {
+        if (!this.isDesktopLarge()) {
             return;
         }
 
@@ -482,7 +487,23 @@ class BubbleChart {
         return (d.type === 'year')
             ? '#ffffff'
             : this.colorScale(d.isChampion.size);
-    }
+    };
+
+    isMobile = () => {
+        return window.innerWidth < 768;
+    };
+
+    isDesktop = () => {
+        return window.innerWidth > 1000;
+    };
+
+    isDesktopLarge = () => {
+        return window.innerWidth > 1200;
+    };
+
+    isPortrait = () => {
+        return window.innerWidth < window.innerHeight;
+    };
 }
 
 export default BubbleChart;
