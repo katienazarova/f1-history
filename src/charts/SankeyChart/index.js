@@ -122,7 +122,7 @@ class SankeyChart {
             .attr('x', d => d.x1 + 6)
             .attr('text-anchor', 'start');
 
-        nodeLabels.exit().remove();        
+        nodeLabels.exit().remove();
     }
 
     renderLinks() {
@@ -170,21 +170,43 @@ class SankeyChart {
 
         for (let dimension of dimensions) {
             let node = this.sankey.nodes.find(item => item.type === dimension.name);
-            let width = dimension.title.length * 10 + 20;
+            let width = dimension.title.length * 8 + 10;
 
-            this.svg
-                .append('path')
-                .attr('d', parallelogram(node.x0 - (width / 2), 0, width, 20, 5, 5))
-                .attr('fill', color);
+            const label = this.svg
+                .selectAll(`.${this.classPrefix}__label_type_${dimension.name}`);
 
-            this.svg
+            if (label.size()) {
+                label
+                    .transition()
+                    .duration(this.params.transitionDuration)
+                    .attr('d', parallelogram(node.x0 - (width / 2) + 3, node.y0 - 40, width, 20, 5, 5));
+            } else {
+                this.svg
+                    .append('path')
+                    .attr('class', `${this.classPrefix}__label ${this.classPrefix}__label_type_${dimension.name}`)
+                    .attr('d', parallelogram(node.x0 - (width / 2) + 3, node.y0 - 40, width, 20, 5, 5))
+                    .attr('fill', color);
+            }
+
+            const labelText = this.svg
+                .selectAll(`.${this.classPrefix}__label-text_type_${dimension.name}`);
+
+            if (labelText.size()) {
+                labelText
+                    .transition()
+                    .duration(this.params.transitionDuration)
+                    .attr('x', node.x0)
+                    .attr('y', node.y0 - 20);
+            } else {
+                this.svg
                 .append('text')
-                .attr('class', `${this.classPrefix}__label ${this.classPrefix}__label_type_${dimension.name}`)
+                .attr('class', `${this.classPrefix}__label-text ${this.classPrefix}__label-text_type_${dimension.name}`)
                 .text(dimension.title)
                 .attr('text-anchor', 'middle')
                 .attr('x', node.x0)
-                .attr('y', 20);
-        }        
+                .attr('y', node.y0 - 20);
+            }
+        }
     }
 
     getLinkColor = d => {
