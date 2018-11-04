@@ -2,8 +2,14 @@ import * as d3 from 'd3';
 import debounce from 'lodash.debounce';
 
 import { transformCoordinates } from '../../utils/functions';
+import withTooltip from '../../decorators/withTooltip';
 import LabelComponent from './LabelComponent';
 
+@withTooltip(
+    '.bubble',
+    item => item.name,
+    200
+)
 class BubbleChart {
     constructor(data, labels, container, classPrefix) {
         const ticksData = ['1950', '1970', '1990', '2010'].map(year => ({
@@ -62,7 +68,8 @@ class BubbleChart {
 
         this.colorScale = d3.scaleLinear()
             .domain(d3.range(...d3.extent(this.data, d => d.isChampion && d.isChampion.size || 0)))
-            .range(['#51a7ca', '#50b229', '#f6b42a', '#e77820', '#d74e24', '#c21729', '#a8002d', '#8b002f'])
+            .range(['#51a7ca', '#50b229', '#f6b42a', '#e77820',
+                    '#d74e24', '#c21729', '#a8002d', '#8b002f'])
             .interpolate(d3.interpolateHcl);
 
         const racesCountRange = this.isDesktopLarge()
@@ -87,7 +94,8 @@ class BubbleChart {
         if (!this.isMobile()) {
             this.chartContainer
                 .attr('transform-origin', `0px ${this.height / 2 + this.params.topPadding}px`)
-                .attr('transform', `translate(0,${this.height / 2 + this.params.topPadding}) rotate(-${Math.round(this.angle)})`);
+                .attr('transform', `translate(0,${this.height / 2 + this.params.topPadding})
+                                    rotate(-${Math.round(this.angle)})`);
         }
 
         this.renderAxis();
@@ -143,22 +151,14 @@ class BubbleChart {
             .data(this.data)
             .enter()
             .append('circle')
-            .attr('class', `${this.classPrefix}__circle`)
+            .attr('class', d => `${this.classPrefix}__circle ${d.type !== 'year' ? 'bubble' : ''}`)
             .attr('data-pilot', d => d.name)
             .attr('fill', d => this.getColor(d))
             .attr('stroke', '#ffffff')
             .attr('stroke-width', 2)
             .attr('r', 1)
             .attr('cx', d => d.x)
-            .attr('cy', d => d.y)
-            .on('mouseover', this.onCircleMouseOver)
-            .on('mouseout', this.onCircleMouseOut);
-
-        d3.select('body')
-            .append('div')	
-            .attr('class', `${this.classPrefix}__tooltip`)				
-            .style('opacity', 0)
-            .style('display', 'none');
+            .attr('cy', d => d.y);
     }
 
     renderAxis = () => {
@@ -387,100 +387,6 @@ class BubbleChart {
         this.labels.forEach(item => {
             labelComponent.render(item, `${this.classPrefix}__labels`);
         });
-    };
-
-    onCircleMouseOver = d => {
-        if (d.type === 'year') {
-            return;
-        }
-
-        const {pageX, pageY} = d3.event;
-
-        d3.selectAll(`.${this.classPrefix}__circle`)
-            .filter(item => item.name === d.name)
-            .attr('stroke', '#000000');
-
-        const tooltip = d3.select(`.${this.classPrefix}__tooltip`);
-
-        tooltip
-            .html(`
-                <h3 class="${this.classPrefix}__tooltip-header">${d.name_ru}</h3>
-                <p>Принял участие в ${d.racesCount} Гран-при Формулы-1 ${this.formatYears(d.years)}.</p>
-                ${ d.isChampion.size ? `<p>Завоевал чемпионский титул 
-                в ${[...d.isChampion].join(', ')} ${d.isChampion.size === 1 ? 'году' : 'годах'}.<p>` : '' }
-                <p><a class="${this.classPrefix}__tooltip-link" href="${d.url}" target="_blank">Подробнее</a></p>
-            `)	
-            .style('left', `${pageX}px`)		
-            .style('top', `${pageY}px`)
-            .attr('data-pilot', d.name)
-            .style('display', 'block')
-            .transition()		
-            .duration(100)		
-            .style('opacity', 1);
-
-        tooltip.on('mouseout', () => {
-            this.hideTooltip(d);
-        });
-    }
-
-    onCircleMouseOut = d => {
-        this.hideTooltip(d);
-    };
-
-    hideTooltip = d => {
-        setTimeout(() => {
-            const area = d3.selectAll(`.${this.classPrefix}__circle`)
-                           .filter(item => item.name === d.name);
-            const areaNode = area.node();
-
-            const tooltip = d3.select(`.${this.classPrefix}__tooltip[data-pilot="${d.name}"]`);
-            const tooltipNode = tooltip.node();
-
-            if (!tooltipNode
-                || tooltipNode !== tooltipNode.parentElement.querySelector(':hover')
-                && areaNode !== areaNode.parentElement.querySelector(':hover')) {
-                area.attr('stroke', '#ffffff');
-                tooltip
-                    .style('opacity', 0)
-                    .style('display', 'none');
-            }            
-        }, 300);
-    };
-
-    formatYears = years => {
-        const ranges = [];
-
-        if (years.size === 1) {
-            return `в ${[...years][0]} году`;
-        }
-
-        let range,
-            prev;
-
-        for (let year of years) {
-            if (year - prev === 1) {
-                range.push(year);
-            } else {
-                if (range && range.length) { 
-                    ranges.push(range);
-                }
-                range = [year];
-            }
-
-            prev = year;
-        }
-
-        if (range && range.length) { 
-            ranges.push(range);
-        }
-
-        if (ranges.length === 1) {
-            return `с ${ranges[0][0]} по ${ranges[0][ranges[0].length - 1]} годы`;
-        }
-
-        return `в ${ranges.map(range => range.length === 1 
-            ? range[0] 
-            : `${range[0]}–${range[range.length - 1]}`).join(', ')} гг`;
     };
 
     getColor = d => {

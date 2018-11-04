@@ -86,6 +86,15 @@ export function transformData(data, championsData, grandPrixData, filter = {}) {
         addLink(links, item, item.constructor, item.place);
     });
 
+    Object.values(pilots)
+        .forEach(item => {
+            item.description = `<h3 class="tooltip__header">${item.name_ru}</h3>
+                <p>Принял участие в ${item.racesCount} Гран-при Формулы-1 ${formatYears(item.years)}.</p>
+                ${ item.isChampion.size ? `<p>Завоевал чемпионский титул 
+                в ${[...item.isChampion].join(', ')} ${item.isChampion.size === 1 ? 'году' : 'годах'}.<p>` : '' }
+                <p><a class="tooltip__link" href="${item.url}" target="_blank">Подробнее</a></p>`;
+        });
+
     const countries = Object.values(countriesByGrandPrix)
         .reduce((result, item) => {
             if (result[item.country]) {
@@ -107,6 +116,53 @@ export function transformData(data, championsData, grandPrixData, filter = {}) {
         years,
         countries
     };
+}
+
+export function formatYears(years) {
+    const ranges = [];
+
+    if (years.size === 1) {
+        return `в ${[...years][0]} году`;
+    }
+
+    let range,
+        prev;
+
+    for (let year of years) {
+        if (year - prev === 1) {
+            range.push(year);
+        } else {
+            if (range && range.length) { 
+                ranges.push(range);
+            }
+            range = [year];
+        }
+
+        prev = year;
+    }
+
+    if (range && range.length) { 
+        ranges.push(range);
+    }
+
+    if (ranges.length === 1) {
+        return `с ${ranges[0][0]} по ${ranges[0][ranges[0].length - 1]} годы`;
+    }
+
+    return `в ${ranges.map(range => range.length === 1 
+        ? range[0] 
+        : `${range[0]}–${range[range.length - 1]}`).join(', ')} гг`;
+}
+
+export function generateRandomString(length) {
+    const characters = 'abcdefghijklmnopqrstuvwxyz';
+    let result = '';
+
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+
+    return result;
 }
 
 function addLink(links, item, source, target) {
