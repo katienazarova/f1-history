@@ -35,6 +35,11 @@ h2 {
     border: 1px solid #dddddd;
     border-left: 5px solid var(--base-color);
 
+    &_type_mobile {
+        left: 10px;
+        right: 10px;
+    }
+
     &__header {
         font-size: 18px;
         font-weight: normal;

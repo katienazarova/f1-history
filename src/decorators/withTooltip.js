@@ -42,12 +42,12 @@ function addTooltip(...args) {
     ] = args;
 
     const id = generateRandomString(6);
+    const isMobile = width > document.body.clientWidth;
 
     d3
         .select('body')
         .append('div')	
         .attr('class', `tooltip tooltip-${id}`)
-        .style('width', `${width}px`)
         .style('opacity', 0)
         .style('display', 'none');
 
@@ -77,17 +77,29 @@ const onMouseOver = (params, d) => {
         .attr('stroke', '#000000');
 
     const tooltip = d3.select(`.tooltip-${id}`);
+    const bodyWidth = document.body.clientWidth;
 
     tooltip
-        .html(d.description)
         .attr('data-name', getName(d))
         .style('display', 'block')
-        .style('top', `${pageY}px`);
+        .style('top', `${pageY}px`)
+        .html(d.description);
 
-    if (document.body.clientWidth - pageX > width + 50) {
-        tooltip.style('left', `${pageX}px`);
+    const isLeft = bodyWidth - pageX > width + 50;
+    const isMobile = isLeft && pageX + width > bodyWidth
+        || !isLeft && pageX - width < 0;
+
+    if (isMobile) {
+        tooltip
+            .classed('tooltip_type_mobile', true)
+            .style('width', 'auto');
     } else {
-        tooltip.style('right', `${document.body.clientWidth - pageX}px`);
+        tooltip
+            .style('width', `${width}px`)
+            .style(
+                `${isLeft ? 'left' : 'right'}`,
+                `${isLeft ? `${pageX}px` : `${bodyWidth - pageX}px`}`
+            );
     }
 
     tooltip
@@ -95,9 +107,10 @@ const onMouseOver = (params, d) => {
         .duration(100)		
         .style('opacity', 1);
 
-    tooltip.on('mouseout', () => {
-        hideTooltip(params, d);
-    });
+    tooltip
+        .on('mouseout', () => {
+            hideTooltip(params, d);
+        });
 };
 
 const onMouseOut = (params, d) => {
