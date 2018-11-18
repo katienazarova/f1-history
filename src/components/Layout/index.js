@@ -8,7 +8,6 @@ import GrandPrixMap from '../GrandPrixMap';
 
 import { transformData } from '../../utils/functions';
 
-import '../../../build/fonts.css';
 import './index.scss';
 
 class Layout extends React.Component {

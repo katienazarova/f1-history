@@ -19,26 +19,32 @@ module.exports = {
             { test: /\.scss?$/, loader: 'style-loader!css-loader!sass-loader' },
             { test: /\.css$/, loader: 'style-loader!css-loader' },
             {
-                test: /\.svg$/,
-                loader: 'url-loader?limit=65000&mimetype=image/svg+xml'
-            },
-            {
                 test: /\.woff$/,
-                loader: 'url-loader?mimetype=application/font-woff'
+                loader: 'file-loader?name=fonts/[name].[hash].[ext]'
             },
             {
                 test: /\.woff2$/,
-                loader: 'url-loader?mimetype=application/font-woff2'
+                loader: 'file-loader?name=fonts/[name].[hash].[ext]'
             },
             {
                 test: /\.[ot]tf$/,
-                loader: 'url-loader?mimetype=application/octet-stream'
+                loader: 'file-loader?name=fonts/[name].[hash].[ext]'
             },
             {
                 test: /\.eot$/,
-                loader: 'url-loader?mimetype=application/vnd.ms-fontobject'
+                loader: 'file-loader?name=fonts/[name].[hash].[ext]'
+            },
+            {
+                test: /\.(jpg|png)$/,
+                loader: 'file-loader?name=images/[name].[hash].[ext]'
             }
         ]
     },
-    plugins: []
+    plugins: [],
+    resolve: {
+        modules: [
+            path.resolve(__dirname, 'node_modules'),
+            path.resolve(__dirname, './src'),
+        ]
+    }
 };
