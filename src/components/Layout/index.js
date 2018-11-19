@@ -48,10 +48,8 @@ class Layout extends React.Component {
                 [this.props.className]: this.props.className
             })}>
             
-            { !this.state.isLoading ?
-                <PilotsChart pilots={data.pilots}
-                             labels={labelsData} />
-            : null }
+            <PilotsChart pilots={data.pilots}
+                         labels={labelsData} />
 
             { !this.state.isLoading ?
                 <GrandPrixMap countries={data.countries}

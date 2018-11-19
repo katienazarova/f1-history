@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import BubbleChart from '../../charts/BubbleChart';
@@ -7,7 +8,17 @@ import './index.scss';
 
 class PilotsChart extends React.Component {
 
-    componentDidMount() {
+    static propTypes = {
+        pilots: PropTypes.array,
+        labels: PropTypes.array,       
+    };
+
+    static defaultProps = {
+        pilots: [],
+        labels: [],
+    };
+
+    componentDidUpdate() {
         const {
             pilots,
             labels

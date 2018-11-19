@@ -104,34 +104,6 @@ class BubbleChart {
     }
 
     renderCircles() {
-        const links = this.getLinks();
-
-        const simulation = d3.forceSimulation(this.data)
-            .force('x', d3.forceX(d => this.xScale([...d.years][0])).strength(1))
-            .force('y', d3.forceY(this.height / 2))
-            .force('collide', d3.forceCollide(d => this.radiusScale(d.racesCount) - 2).strength(1))
-            .on('tick', d => {
-                for (let i = 0; i < 40; i++) {
-                    simulation.tick();
-                }
-            })
-            .on('end', d => {
-                circles
-                    .transition()
-                    .duration(500)
-                    .attr('r', d => this.radiusScale(d.racesCount) - 2)
-                    .attr('cx', d => d.x)
-                    .attr('cy', d => d.y)
-                    .attr('data-point', d => `${d.x},${d.y}`);
-
-                this.renderLabels();
-                this.renderTicks();
-            });
-
-        if (this.isDesktopLarge()) {
-            simulation.force('link', d3.forceLink().links(links).distance(200));
-        }
-
         this.data
             .filter(d => d.type === 'year')
             .map(d => Object.assign(d, {
@@ -159,7 +131,39 @@ class BubbleChart {
             .attr('r', 1)
             .attr('cx', d => d.x)
             .attr('cy', d => d.y);
+
+        this.runSimulation(circles);
     }
+
+    runSimulation = (circles) => {
+        const links = this.getLinks();
+
+        const simulation = d3.forceSimulation(this.data)
+            .force('x', d3.forceX(d => this.xScale([...d.years][0])).strength(1))
+            .force('y', d3.forceY(this.height / 2))
+            .force('collide', d3.forceCollide(d => this.radiusScale(d.racesCount) - 2).strength(1))
+            .on('tick', d => {
+                for (let i = 0; i < 40; i++) {
+                    simulation.tick();
+                }
+            })
+            .on('end', d => {
+                circles
+                    .transition()
+                    .duration(500)
+                    .attr('r', d => this.radiusScale(d.racesCount) - 2)
+                    .attr('cx', d => d.x)
+                    .attr('cy', d => d.y)
+                    .attr('data-point', d => `${d.x},${d.y}`);
+
+                this.renderLabels();
+                this.renderTicks();
+            });
+
+        if (this.isDesktopLarge()) {
+            simulation.force('link', d3.forceLink().links(links).distance(200));
+        }
+    };
 
     renderAxis = () => {
         this.chartContainer.append('g')
@@ -211,7 +215,9 @@ class BubbleChart {
                 }
             }
 
-            links.push({ source, target });
+            if (source && target) {
+                links.push({ source, target });
+            }            
         });
 
         return links;
