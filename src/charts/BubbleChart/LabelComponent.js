@@ -11,6 +11,10 @@ class LabelComponent {
     render(label, className) {
         const currentElement = this.data.find(item => item.name === label.name);
 
+        if (!currentElement) {
+            return false;
+        }
+
         const container = this.container
             .append('g')
             .attr('class', className);

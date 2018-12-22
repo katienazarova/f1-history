@@ -18,18 +18,19 @@ class WorldMap {
             .feature(data, data.objects.world)
             .features
             .map(item => {
+                const country = countries[item.properties.NAME] || {};
+
                 return {
                     ...item,
-                    ...countries[item.properties.NAME],
-                    ...{
-                        description: countries[item.properties.NAME] 
-                            ? `<h3 class="tooltip__header">${countries[item.properties.NAME].title}</h3>
-                               <p>${countries[item.properties.NAME].description || ''}</p>
-                               <p><a class="tooltip__link"
-                                     href="${countries[item.properties.NAME].url}"
-                                     target="_blank">Подробнее</a></p>`
-                            : null
-                    }
+                    ...country,
+                    description: country.title 
+                        ? `<h3 class="tooltip__header">${country.title}</h3>
+                            <p>${country.description || ''}</p>
+                            <p><a class="tooltip__link"
+                                    href="${country.url}"
+                                    target="_blank">Подробнее</a></p>`
+                        : null,
+                    value: country.years && country.years.length ? country.years.length : 0,
                 };
             });
 

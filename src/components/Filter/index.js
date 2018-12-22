@@ -6,28 +6,36 @@ import Dropdown from '../Dropdown';
 
 import './index.scss';
 
-class Filter extends React.Component {
-
+class Filter extends React.PureComponent {
     static propTypes = {
         filter: PropTypes.object.isRequired,
-        fields: PropTypes.object.isRequired,
-        onChange: PropTypes.func        
+        years: PropTypes.array.isRequired,
+        grandPrix: PropTypes.array.isRequired,
+        onChange: PropTypes.func,
     };
 
     static defaultProps = {
         filter: {},
-        fields: {},
-        onChange: null
+        years: [],
+        grandPrix: [],
+        onChange: () => undefined,
     };
 
-    onChange = (key, value) => {
-        this.props.onChange && this.props.onChange({ [key]: value });
+    onChangeYear = (value) => {
+        const { onChange } = this.props;
+        onChange({ year: value });
+    };
+
+    onChangeGrandPrix = (value) => {
+        const { onChange } = this.props;
+        onChange({ grandPrix: value });
     };
 
     render() {
         const {
             filter,
-            fields,
+            years,
+            grandPrix,
             className
         } = this.props;
 
@@ -35,17 +43,26 @@ class Filter extends React.Component {
                 'filter': true,
                 [className]: className
             })}>
-
-            { Object.keys(fields).map((item, index) => <div className='filter__item' key={item}>
+            <div className='filter__item'>
                 <Dropdown
-                    title={fields[item].title}
-                    list={fields[item].data}
-                    current={filter[item]}
-                    columnsCount={fields[item].columnsCount}
-                    tabIndex={index}
-                    onChange={this.onChange.bind(this, item)} 
+                    title="Сезон"
+                    list={years}
+                    current={filter.year}
+                    columnsCount={7}
+                    tabIndex={1}
+                    onChange={this.onChangeYear} 
                 />
-            </div>)}
+            </div>
+            <div className='filter__item'>
+                <Dropdown
+                    title="Гран-при"
+                    list={grandPrix}
+                    current={filter.grandPrix}
+                    columnsCount={3}
+                    tabIndex={2}
+                    onChange={this.onChangeGrandPrix} 
+                />
+            </div>
         </div>;
     }
 }

@@ -16,8 +16,8 @@ class BubbleChart {
             name: year,
             racesCount: 250, 
             type: 'year', 
-            isChampion: new Set(), 
-            years: new Set([year]) 
+            isChampion: [], 
+            years: [year]
         }));
 
         this.data = [
@@ -67,7 +67,7 @@ class BubbleChart {
         this.angle = (this.angleRad * 180) / Math.PI;
 
         this.colorScale = d3.scaleLinear()
-            .domain(d3.range(...d3.extent(this.data, d => d.isChampion && d.isChampion.size || 0)))
+            .domain(d3.range(...d3.extent(this.data, d => d.isChampion && d.isChampion.length || 0)))
             .range(['#51a7ca', '#50b229', '#f6b42a', '#e77820',
                     '#d74e24', '#c21729', '#a8002d', '#8b002f'])
             .interpolate(d3.interpolateHcl);
@@ -191,8 +191,8 @@ class BubbleChart {
 
     getLinks = () => {
         const linkedPairs = [
-            ['Nino Farina', 'Juan Fangio'],
-            ['Ayrton Senna', 'Michael Schumacher']
+            ['Нино Фарина', 'Хуан Мануэль Фанхио'],
+            ['Айртон Сенна', 'Михаэль Шумахер']
         ];
 
         const links = [];
@@ -336,7 +336,7 @@ class BubbleChart {
             .attr('fill', d => d ? this.colorScale(d) : '#51a7ca')
             .on('mouseover', d => {
                 d3.selectAll(`.${this.classPrefix}__circle`)
-                    .filter(item => item.type !== 'year' && item.isChampion.size !== d)
+                    .filter(item => item.type !== 'year' && item.isChampion.length !== d)
                     .transition()
                     .attr('fill', '#cccccc');
             })
@@ -398,7 +398,7 @@ class BubbleChart {
     getColor = d => {
         return (d.type === 'year')
             ? '#ffffff'
-            : this.colorScale(d.isChampion.size);
+            : this.colorScale(d.isChampion.length);
     };
 
     isMobile = () => {

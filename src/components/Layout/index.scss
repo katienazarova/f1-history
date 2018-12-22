@@ -8,4 +8,14 @@
         margin: 0 auto;
         padding: 0;
     }
+
+    &__footer {
+        padding: 20px 0;
+        text-align: center;
+    }
+
+    &__footer-link {
+        color: var(--base-color);
+        font-family: var(--font-family-black);
+    }
 }

@@ -1,4 +1,5 @@
 import React from 'react';
+import * as d3 from 'd3';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
@@ -9,23 +10,21 @@ import './index.scss';
 class PilotsChart extends React.Component {
 
     static propTypes = {
-        pilots: PropTypes.array,
-        labels: PropTypes.array,       
+        pilots: PropTypes.array,       
     };
 
     static defaultProps = {
         pilots: [],
-        labels: [],
     };
 
     componentDidUpdate() {
-        const {
-            pilots,
-            labels
-        } = this.props;
+        const { pilots } = this.props;
 
-        this.chart = new BubbleChart(pilots, labels, 'svg#bubbles', 'pilots-chart');
-        this.chart.render();
+        d3.json('data/labels.json')
+            .then(labels => {
+                this.chart = new BubbleChart(pilots, labels, 'svg#bubbles', 'pilots-chart');
+                this.chart.render();
+            });
     }
 
     render() {

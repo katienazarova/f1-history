@@ -242,8 +242,14 @@ class SankeyChart {
         .duration(this.params.transitionDuration / 2)
         .style('stroke-opacity', 0.9);
 
+        const isRelatedLabel = (item) => {
+            return item.type === 'pilot' && d.pilots.has(item.name)
+                || item.type === 'constructor' && item.name === d.constructor
+                || item.type === 'place' && item.name === d.place;
+        };
+
         d3.selectAll(`.${this.classPrefix}__node-label`)
-            .filter(item => item.pilot && d.pilots.has(item.pilot.en))
+            .filter(item => isRelatedLabel(item))
             .style('font-family', fontFamily);
     }
 
@@ -254,15 +260,22 @@ class SankeyChart {
         d3.selectAll(`.${this.classPrefix}__link`)
             .filter(item => {
                 return d.type === 'pilot'
-                    ? item.pilots.has(d.pilot.en)
+                    ? item.pilots.has(d.name)
                     : item[d.type] === d.name;            
             })
             .transition()
             .duration(10)
             .style('stroke-opacity', 0.9);
 
+        const isRelatedLabel = (item) => {
+            return item.name === d.name
+                || item[d.type] === d.name
+                || d.type === 'pilot' && item.pilots && item.pilots.indexOf(d.name) > -1
+                || d.type === 'constructor' && item.constructors && item.constructors.indexOf(d.name) > -1;
+        };
+
         d3.selectAll(`.${this.classPrefix}__node-label`)
-            .filter(item => item[d.type] === d.name || item.name === d.name)
+            .filter(item => isRelatedLabel(item))
             .style('font-family', fontFamily);
     }
 

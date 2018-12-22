@@ -8,70 +8,84 @@ import SankeyChart from '../../charts/SankeyChart';
 
 import './index.scss';
 
-class RacesChart extends React.Component {
+class RacesChart extends React.PureComponent {
 
     state = {
         filter: {
-            year: '1950',
-            grandPrix: 'Гран-при Великобритании'
-        }
+            year: '2018',
+            grandPrix: 'Гран-при Абу-Даби'
+        },
+        years: [],
+        grandPrix: {},
     };
 
-    componentWillMount() {
-        const data = transformData(this.props.data, [], [], this.state.filter);
+    componentDidUpdate(prevProps) {
+        const { data } = this.props;
+        const { filter } = this.state;
 
-        this.setState({ data });
-    }
+        if (prevProps.data !== data) {
+            const formattedData = transformData(data, filter);
 
-    componentDidMount() {
-        this.sankey = new SankeyChart(this.state.data, 'svg#sankey', 'races-chart');
-        this.sankey.render();
+            this.setState({
+                years: formattedData.years,
+                grandPrix: formattedData.grandPrix,
+            });
+            this.sankey = new SankeyChart(formattedData, 'svg#sankey', 'races-chart');
+            this.sankey.render();
+        }
     }
 
     onFilterChange = changes => {
+        const {
+            grandPrix,
+            filter,
+        } = this.state;
+
         if (changes.year) {
-            changes.grandPrix = [...this.state.data.years.get(changes.year)][0];
+            changes.grandPrix = [...grandPrix[changes.year]][0];
         }
 
-        this.setState({ filter: {...this.state.filter, ...changes} }, () => {
+        this.setState({ filter: {...filter, ...changes} }, () => {
             this.updateData();
-        });      
+        });
     };
 
     updateData() {
-        const data = transformData(this.props.data, [], [], this.state.filter);
+        const { data } = this.props;
+        const { filter } = this.state;
+        const formattedData = transformData(data, filter);
 
-        this.setState({ data });
-
-        this.sankey.update(data);
+        this.sankey.update(formattedData);
         this.sankey.render();
     }
 
     render() {
         const { 
-            data,
-            filter
+            filter,
+            years,
+            grandPrix,
         } = this.state;
 
-        let filterFields;
+        const currentGrandPrix = grandPrix[filter.year]
+            ? [...grandPrix[filter.year]]
+            : [];
 
-        if (data.years) {
-            filterFields = {
-                year: { title: 'Сезон', data: [...data.years.keys()], columnsCount: 7 },
-                grandPrix: { title: 'Гран-при', data: [...data.years.get(filter.year)], columnsCount: 3 }
-            };
-        }
-
-        return <div className={classNames({
-                'races-chart': true,
-                [this.props.className]: this.props.className
-            })}>
+        return (
+            <div className='races-chart'>
                 <h2>Результаты гран-при</h2>
-                <Filter filter={filter}
-                        fields={filterFields}
-                        onChange={this.onFilterChange} />
-                <svg id='sankey' width='100%' height='600'></svg>
-        </div>;
+                <Filter
+                    filter={filter}
+                    years={years}
+                    grandPrix={currentGrandPrix}
+                    onChange={this.onFilterChange}
+                />
+                <svg
+                    id='sankey'
+                    width='100%'
+                    height='600'
+                />
+            </div>
+        );
     }
 }
 

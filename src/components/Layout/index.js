@@ -6,59 +6,54 @@ import RacesChart from '../RacesChart';
 import PilotsChart from '../PilotsChart';
 import GrandPrixMap from '../GrandPrixMap';
 
-import { transformData } from '../../utils/functions';
-
 import './index.scss';
 
 class Layout extends React.Component {
     componentWillMount() {
-        Promise.all([
-            d3.json('data/race_results.json'),
-            d3.json('data/champions.json'),
-            d3.json('data/labels.json'),
-            d3.json('data/topoworld.json'),
-            d3.json('data/grand_prix.json')
-        ])
-            .then(([rawData, championsData, labelsData, mapData, grandPrixData]) => {
-                const data = transformData(rawData, championsData, grandPrixData, {
-                    year: '1950',
-                    grandPrix: 'Гран-при Великобритании'
-                });
-
-                this.setState({ isLoading: false, rawData, championsData, labelsData, mapData, data });
+        d3.json('data/data.json')
+            .then(data => {
+                this.setState({ isLoading: false, data });
             });
     }
 
     state = {
         isLoading: true,
-        rawData: {},
         data: {}
     };
 
     render() {
-        const { 
-            data, 
-            rawData, 
-            labelsData,
-            mapData
-        } = this.state;
+        const { className } = this.props;
+        const {
+            pilots,
+            countries,
+            raceResults,
+        } = this.state.data;
 
         return <div className={classNames({
                 'layout': true,
-                [this.props.className]: this.props.className
+                [className]: className
             })}>
-            
-            <PilotsChart pilots={data.pilots}
-                         labels={labelsData} />
 
-            { !this.state.isLoading ?
-                <GrandPrixMap countries={data.countries}
-                              mapData={mapData} />
-            : null }
+            <PilotsChart pilots={pilots} />
 
-            { !this.state.isLoading ?
-                <RacesChart data={rawData} />
-            : null }
+            <GrandPrixMap countries={countries} />
+
+            <RacesChart data={raceResults} />
+
+            <div className='layout__footer'>
+                Катя Назарова
+                {' '}
+                <a
+                    className="layout__footer-link"
+                    href="https://twitter.com/katienazarova"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    @katienazarova
+                </a>
+                {' '}
+                | 2018&nbsp;г.
+            </div>
         </div>;
     }
 }
